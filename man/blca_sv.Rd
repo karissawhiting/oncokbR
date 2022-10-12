@@ -6,10 +6,6 @@
 \title{Mutation data from Nonmuscle invasive bladder cancer patients (MSK Eur Urol 2017)}
 \format{
 A data frame with 13 rows of structural variant data from
-Nonmuscle invasive bladder cancer patients (MSK Eur Urol 2017)
-\describe{
-\item{site1HugoSymbol}{Hugo Gene Symbol}
-}
 }
 \usage{
 blca_sv

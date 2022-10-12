@@ -1,20 +1,55 @@
 
 
+#' Annotate Mutations
+#'
+#' @param mutations a mutations file in MAF, or similar format
+#'
+#' @return an annotated mutations file
+#' @export
+#' @import dplyr
+#'
+#' @examples
+#' ex_mut <- blca_mutation[1:50, ]
+#' ex_mut$tumor_type = "BLCA"
+#' annotate_mutations(ex_mut)
+#'
 annotate_mutations <- function(mutations) {
 
   mutations <- rename_columns(mutations)
 
-  all_mut_oncokb <- mutations %>%
-    select(hugo_symbol, proteinChange, consequence_final_coding,
-           proteinPosStart, proteinPosEnd) %>%
-    mutate(tumorType = "BLCA")
+  if(!("tumor_type" %in% names(mutations))) {
+    cli::cli_abort("Your data must have a column with {.val tumor_type}")
+  }
 
-  make_url <- function(hugoGeneSymbol, proteinChange,
+  variant_options <- unique(stats::na.omit(unlist(oncokbR::consequence_map)))
+  variant_in_data <- unique(mutations$variant_classification)
+
+  not_allowed <- variant_in_data[!(variant_in_data %in% variant_options)]
+
+  # Maybe turn into warning
+  if(length(not_allowed) > 0) {
+    cli::cli_abort("The following variant classification levels are not recognized: {.code {not_allowed}}.
+                   Please remove or recode these to continue (see {.code oncokbR::consequence_map} for allowed values)")
+  }
+
+  consequence_vec <- tibble::deframe(select(oncokbR::consequence_map, "consequence_final_coding", "variant_classification"))
+
+  suppressWarnings(
+    mutations <- mutations %>%
+      mutate(consequence_final_coding = forcats::fct_recode(.data$variant_classification, !!!consequence_vec))
+  )
+
+  all_mut_oncokb <- mutations %>%
+    select("hugo_symbol", "hgv_sp_short", "consequence_final_coding",
+           "protein_pos_start", "protein_pos_end", "tumor_type")
+
+  make_url <- function(hugo_symbol, hgv_sp_short,
                        consequence_final_coding,
-                       proteinPosStart, proteinPosEnd, tumorType) {
+                       protein_pos_start, protein_pos_end, tumor_type) {
+
     url <- glue::glue("https://www.oncokb.org/api/v1/annotate/mutations/byProteinChange?hugoSymbol=",
-                      "{hugoGeneSymbol}&alteration={proteinChange}&referenceGenome=GRCh37&consequence=",
-                      "{consequence_final_coding}&proteinStart={proteinPosStart}&proteinEnd={proteinPosEnd}&tumorType={tumorType}")
+                      "{hugo_symbol}&alteration={hgv_sp_short}&referenceGenome=GRCh37&consequence=",
+                      "{consequence_final_coding}&proteinStart={protein_pos_start}&proteinEnd={protein_pos_end}&tumorType={tumor_type}")
 
     token <- Sys.getenv('ONCOKB_TOKEN')
     resp <- httr::GET(url,
@@ -27,49 +62,22 @@ annotate_mutations <- function(mutations) {
                                  simplifyVector = TRUE)
     # parsed <- parsed %>% discard("query")
     parsed <-unlist(parsed, recursive=TRUE) %>%
-      enframe() %>%
-      pivot_wider(names_from = name,
+      tibble::enframe() %>%
+      tidyr::pivot_wider(names_from = .data$name,
                   values_fn = function(x) paste(x, collapse=","))
 
     parsed
 
   }
 
-  # Error in `dplyr::bind_rows()`:
-  #   ! Can't combine `..1$query.referenceGenome` <character> and `..27$query.referenceGenome` <list>.
-  #
-  c <- pmap_df(all_mut_oncokb,  make_url)
 
+  all_mut_oncokb <- purrr::pmap_df(all_mut_oncokb,  make_url)
 
-  c <- c %>%
-    janitor::clean_names()
+  all_mut_oncokb <- all_mut_oncokb %>%
+    janitor::clean_names() %>%
+    select(-contains("query_"))
 
-  c2 <- c%>%
-    select(-contains("query."))
+  all_mut_oncokb
 
-  c3 <-c2 %>% select(query_hugo_symbol, query_alteration, query_consequence, gene_exist, variant_exist, oncogenic, mutation_effect_known_effect,
-                     mutation_effect_description, hotspot,
-                     gene_summary, variant_summary,
-                     highest_sensitive_level, treatments_level)
-
-
-  c3$oncogenic %>% table()
-
-  c4 <- c3
-  #%>% filter(oncogenic %in% c("Likely Oncogenic", "Oncogenic"))
-
-
-  table(c4$highest_sensitive_level)
-
-  c4 %>% select(highest_sensitive_level, treatments_level) %>%
-    tbl_summary()
-
-  all_mut2 <- all_mut %>%
-    bind_cols(c4)
-
-  all_mut2 <- all_mut2 %>%
-    filter(oncogenic %in% c("Likely Oncogenic", "Oncogenic"))
-
-  all_mut2 %>% select(highest_sensitive_level, treatments_level) %>%
-    tbl_summary()
 }
+
