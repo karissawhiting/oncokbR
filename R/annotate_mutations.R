@@ -40,10 +40,10 @@ annotate_mutations <- function(mutations) {
   )
 
   all_mut_oncokb <- mutations %>%
-    select("hugo_symbol", "hgv_sp_short", "consequence_final_coding",
+    select("sample_id", "hugo_symbol", "hgv_sp_short", "consequence_final_coding",
            "protein_pos_start", "protein_pos_end", "tumor_type")
 
-  make_url <- function(hugo_symbol, hgv_sp_short,
+  make_url <- function(sample_id, hugo_symbol, hgv_sp_short,
                        consequence_final_coding,
                        protein_pos_start, protein_pos_end, tumor_type) {
 
@@ -66,6 +66,7 @@ annotate_mutations <- function(mutations) {
       tidyr::pivot_wider(names_from = .data$name,
                   values_fn = function(x) paste(x, collapse=","))
 
+    parsed$sample_id <- sample_id
     parsed
 
   }
@@ -75,7 +76,8 @@ annotate_mutations <- function(mutations) {
 
   all_mut_oncokb <- all_mut_oncokb %>%
     janitor::clean_names() %>%
-    select(-contains("query_"))
+    select(-contains("query_")) %>%
+    select("sample_id", everything())
 
   all_mut_oncokb
 

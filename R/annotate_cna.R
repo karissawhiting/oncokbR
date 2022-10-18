@@ -52,9 +52,9 @@ annotate_cna <- function(cna) {
   )
 
   all_cna_oncokb <- cna %>%
-    select("hugo_symbol", "alteration_cleaned", "tumor_type")
+    select("sample_id", "hugo_symbol", "alteration_cleaned", "tumor_type")
 
-  make_url <- function(hugo_symbol, alteration_cleaned, tumor_type) {
+  make_url <- function(sample_id, hugo_symbol, alteration_cleaned, tumor_type) {
 
     url <- glue::glue("https://www.oncokb.org/api/v1/annotate/copyNumberAlterations?hugoSymbol=",
                       "{hugo_symbol}&copyNameAlterationType={alteration_cleaned}&referenceGenome=GRCh37&",
@@ -75,8 +75,8 @@ annotate_cna <- function(cna) {
       tidyr::pivot_wider(names_from = .data$name,
                   values_fn = function(x) paste(x, collapse=","))
 
+    parsed$sample_id <- sample_id
     parsed
-
   }
 
 
@@ -84,7 +84,8 @@ annotate_cna <- function(cna) {
 
   all_cna_oncokb <- all_cna_oncokb %>%
     janitor::clean_names() %>%
-    select(-contains("query_"))
+    select(-contains("query_")) %>%
+    select("sample_id", everything())
 
   all_cna_oncokb
 
