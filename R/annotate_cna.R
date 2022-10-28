@@ -22,34 +22,11 @@ annotate_cna <- function(cna) {
     cli::cli_abort("Your data must have a column with {.val tumor_type}")
   }
 
+
+  cna <- switch(!is.null(cna), .recode_cna_alterations(cna))
+
   cna <- cna %>%
-    mutate(hugo_symbol = as.character(.data$hugo_symbol)) %>%
-    mutate(alteration = tolower(stringr::str_trim(as.character(.data$alteration))))
-
-  levels_in_data <- names(table(cna$alteration))
-
-  allowed_chr_levels <- c(
-    "neutral" = "0",
-    "DELETION" = "-2",
-    "LOSS" = "-1.5",
-    "LOSS" = "-1",
-    "GAIN" = "1",
-    "AMPLIFICATION" = "2"
-  )
-
-  all_allowed <- c(allowed_chr_levels, names(allowed_chr_levels))
-  not_allowed <- levels_in_data[!levels_in_data %in% all_allowed]
-
-  if(length(not_allowed) > 0) {
-    cli::cli_abort(c("Unknown values in {.field alteration} field: {.val {not_allowed}}",
-                     "Must be one of the following: {.val {all_allowed}}"))
-  }
-
-
-  suppressWarnings(
-    cna <- cna %>%
-      mutate(alteration_cleaned = forcats::fct_recode(.data$alteration, !!!allowed_chr_levels))
-  )
+    mutate(alteration_cleaned = alteration)
 
   all_cna_oncokb <- cna %>%
     select("sample_id", "hugo_symbol", "alteration_cleaned", "tumor_type")
