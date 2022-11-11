@@ -10,16 +10,17 @@
 #'
 #' @examples
 #' ex_mut <- blca_mutation[1:50, ]
+#'
+#' # Annotate without tumor type -----
+#' x <- annotate_mutations(ex_mut)
+#'
+#' # Annotate with tumor type -----
 #' ex_mut$tumor_type = "BLCA"
-#' annotate_mutations(ex_mut)
+#' y <- annotate_mutations(ex_mut)
 #'
 annotate_mutations <- function(mutations) {
 
   mutations <- rename_columns(mutations)
-
-  if(!("tumor_type" %in% names(mutations))) {
-    cli::cli_abort("Your data must have a column with {.val tumor_type}")
-  }
 
   variant_options <- unique(stats::na.omit(unlist(oncokbR::consequence_map)))
   variant_in_data <- unique(mutations$variant_classification)
@@ -32,7 +33,8 @@ annotate_mutations <- function(mutations) {
                    Please remove or recode these to continue (see {.code oncokbR::consequence_map} for allowed values)")
   }
 
-  consequence_vec <- tibble::deframe(select(oncokbR::consequence_map, "consequence_final_coding", "variant_classification"))
+  consequence_vec <- tibble::deframe(select(
+    oncokbR::consequence_map, "consequence_final_coding", "variant_classification"))
 
   suppressWarnings(
     mutations <- mutations %>%
@@ -40,8 +42,8 @@ annotate_mutations <- function(mutations) {
   )
 
   all_mut_oncokb <- mutations %>%
-    select("sample_id", "hugo_symbol", "hgv_sp_short", "consequence_final_coding",
-           "protein_pos_start", "protein_pos_end", "tumor_type")
+    select(any_of(c("sample_id", "hugo_symbol", "hgv_sp_short", "consequence_final_coding",
+           "protein_pos_start", "protein_pos_end", "tumor_type")))
 
   make_url <- function(sample_id, hugo_symbol, hgv_sp_short,
                        consequence_final_coding,
@@ -49,7 +51,12 @@ annotate_mutations <- function(mutations) {
 
     url <- glue::glue("https://www.oncokb.org/api/v1/annotate/mutations/byProteinChange?hugoSymbol=",
                       "{hugo_symbol}&alteration={hgv_sp_short}&referenceGenome=GRCh37&consequence=",
-                      "{consequence_final_coding}&proteinStart={protein_pos_start}&proteinEnd={protein_pos_end}&tumorType={tumor_type}")
+                      "{consequence_final_coding}&proteinStart={protein_pos_start}&proteinEnd={protein_pos_end}")
+
+
+    if(("tumor_type" %in% names(mutations))) {
+      url <- glue::glue(url, "&tumorType={tumor_type}")
+    }
 
     token <- Sys.getenv('ONCOKB_TOKEN')
     resp <- httr::GET(url,

@@ -18,10 +18,6 @@ annotate_cna <- function(cna) {
 
   cna <- rename_columns(cna)
 
-  if(!("tumor_type" %in% names(cna))) {
-    cli::cli_abort("Your data must have a column with {.val tumor_type}")
-  }
-
   cna <- cna %>%
     mutate(hugo_symbol = as.character(.data$hugo_symbol)) %>%
     mutate(alteration = tolower(stringr::str_trim(as.character(.data$alteration))))
@@ -59,6 +55,10 @@ annotate_cna <- function(cna) {
     url <- glue::glue("https://www.oncokb.org/api/v1/annotate/copyNumberAlterations?hugoSymbol=",
                       "{hugo_symbol}&copyNameAlterationType={alteration_cleaned}&referenceGenome=GRCh37&",
                       "tumorType={tumor_type}")
+
+    if(("tumor_type" %in% names(cna))) {
+      url <- glue::glue(url, "&tumorType={tumor_type}")
+    }
 
     token <- Sys.getenv('ONCOKB_TOKEN')
     resp <- httr::GET(url,
