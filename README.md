@@ -25,7 +25,7 @@ Gao et al. Sci. Signal. 2013 Cerami et al. Cancer Discov. 2012
 You can install the development version of oncokbR like so:
 
 ``` r
-remotes::install_github('karissawhiting/oncokbR")
+remotes::install_github('karissawhiting/oncokbR')
 ```
 
 ## Annotate Data
