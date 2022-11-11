@@ -1,5 +1,7 @@
 ---
 output: github_document
+editor_options: 
+  chunk_output_type: inline
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -36,27 +38,66 @@ remotes::install_github('karissawhiting/oncokbR')
 
 ## Annotate Data
 
-Annotate Mutations:
+### Annotate Mutations:
 
 ```{r}
 library(oncokbR)
 library(dplyr)
-
-blca_mutation <- oncokbR::blca_mutation %>%
-  mutate(tumor_type = "ACC")
-
-
-annotated <- annotate_mutations(blca_mutation[1:20,])
-table(annotated$oncogenic)
 ```
 
-Annotate CNA:
+Annotate MAF data with tumor type indicated for annotations on oncogenicity and oncoKB treatment levels:
+
+```{r }
+blca_mutation <- oncokbR::blca_mutation %>%
+  mutate(tumor_type = "BLCA")
+
+annotated_tt <- annotate_mutations(mutations = blca_mutation[1:50,])
+
+annotated_tt %>%
+  select(oncogenic) %>% 
+  table()
+
+```
+
+
+```{r}
+annotated_tt %>%
+  select(treatments_level ) %>% 
+  table()
+```
+
+You can also annotated with no tumor type data for oncogenicity only: 
+
+```{r }
+blca_mutation <- oncokbR::blca_mutation
+
+annotated_no_tt <- annotate_mutations(mutations = blca_mutation[1:50,])
+
+annotated_no_tt %>%
+  select(oncogenic) %>% table()
+```
+
+
+### Annotate CNA:
 
 ```{r}
 blca_cna <- blca_cna %>%
-  mutate(tumor_type = "ACC")
+  mutate(tumor_type = "BLCA")
 
 
 annotated <- annotate_cna(blca_cna[1:10,])
+table(annotated$oncogenic)
+
+```
+
+### Annotate Structural Variants:
+
+```{r}
+
+blca_sv <- blca_sv %>%
+  mutate(tumor_type = "BLCA")
+
+
+annotated <- annotate_sv(blca_sv[1:10,])
 table(annotated$oncogenic)
 ```

@@ -30,7 +30,7 @@ remotes::install_github('karissawhiting/oncokbR')
 
 ## Annotate Data
 
-Annotate Mutations:
+### Annotate Mutations:
 
 ``` r
 library(oncokbR)
@@ -43,23 +43,54 @@ library(dplyr)
 #> The following objects are masked from 'package:base':
 #> 
 #>     intersect, setdiff, setequal, union
-
-blca_mutation <- oncokbR::blca_mutation %>%
-  mutate(tumor_type = "ACC")
-
-
-annotated <- annotate_mutations(blca_mutation[1:20,])
-table(annotated$oncogenic)
-#> 
-#> Oncogenic   Unknown 
-#>         1        19
 ```
 
-Annotate CNA:
+Annotate MAF data with tumor type indicated for annotations on
+oncogenicity and oncoKB treatment levels:
+
+``` r
+blca_mutation <- oncokbR::blca_mutation %>%
+  mutate(tumor_type = "BLCA")
+
+annotated_tt <- annotate_mutations(mutations = blca_mutation[1:50,])
+
+annotated_tt %>%
+  select(oncogenic) %>% 
+  table()
+#> oncogenic
+#> Likely Oncogenic        Oncogenic          Unknown 
+#>                4                1               45
+```
+
+``` r
+annotated_tt %>%
+  select(treatments_level ) %>% 
+  table()
+#> treatments_level
+#> LEVEL_3B 
+#>        1
+```
+
+You can also annotated with no tumor type data for oncogenicity only:
+
+``` r
+blca_mutation <- oncokbR::blca_mutation
+
+annotated_no_tt <- annotate_mutations(mutations = blca_mutation[1:50,])
+#> ℹ No "tumor_type" found in data. No treatment-level annotations will be returned.
+
+annotated_no_tt %>%
+  select(oncogenic) %>% table()
+#> oncogenic
+#> Likely Oncogenic        Oncogenic          Unknown 
+#>                4                1               45
+```
+
+### Annotate CNA:
 
 ``` r
 blca_cna <- blca_cna %>%
-  mutate(tumor_type = "ACC")
+  mutate(tumor_type = "BLCA")
 
 
 annotated <- annotate_cna(blca_cna[1:10,])
@@ -67,4 +98,19 @@ table(annotated$oncogenic)
 #> 
 #> Likely Oncogenic        Oncogenic          Unknown 
 #>                3                6                1
+```
+
+### Annotate Structural Variants:
+
+``` r
+
+blca_sv <- blca_sv %>%
+  mutate(tumor_type = "BLCA")
+
+
+annotated <- annotate_sv(blca_sv[1:10,])
+table(annotated$oncogenic)
+#> 
+#> Likely Oncogenic        Oncogenic          Unknown 
+#>                6                3                1
 ```

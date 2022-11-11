@@ -4,25 +4,32 @@
 \alias{annotate_mutations}
 \title{Annotate Mutations}
 \usage{
-annotate_mutations(mutations)
+annotate_mutations(mutations, annotate_by = NULL)
 }
 \arguments{
 \item{mutations}{a mutations file in MAF, or similar format}
+
+\item{annotate_by}{Can indicate whether to annotate by "protein_change" or "hgvsg (see oncoKB API docs for more info).
+If none specified, a guess will be made according to columns in your data.}
 }
 \value{
 an annotated mutations file
 }
 \description{
-Annotate Mutations
+Annotate maf and maf-like files using information about protein change or HGVSg.
+You can annotated with tumor types indicated (oncotree codes), or without.
 }
 \examples{
-ex_mut <- blca_mutation[1:50, ]
+mutations <- oncokbR::blca_mutation[1:10, ]
 
 # Annotate without tumor type -----
-x <- annotate_mutations(ex_mut)
+x <- annotate_mutations(mutations)
 
 # Annotate with tumor type -----
-ex_mut$tumor_type = "BLCA"
-y <- annotate_mutations(ex_mut)
+mutations$tumor_type = "BLCA"
+y <- annotate_mutations(mutations)
+
+# Annotate by HGVSg
+z <- annotate_mutations(oncokbR::mutations_hgvsg)
 
 }

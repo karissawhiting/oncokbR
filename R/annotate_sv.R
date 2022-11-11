@@ -9,17 +9,15 @@
 #' @import dplyr
 #'
 #' @examples
-#' ex_sv <- blca_sv[1:10,]
+#' sv <- blca_sv[1:10,]
 #'
-#' x <- annotate_sv(sv = ex_sv)
+#' x <- annotate_sv(sv = sv)
 #'
 annotate_sv <- function(sv) {
 
   sv <- rename_columns(sv)
 
-  # if(!("tumor_type" %in% names(cna))) {
-  #   cli::cli_abort("Your data must have a column with {.val tumor_type}")
-  # }
+  annotate_tumor_type <- ("tumor_type" %in% names(sv))
 
   sv <- sv %>%
     mutate(hugo_symbol = as.character(.data$site_1_hugo_symbol)) %>%
@@ -72,14 +70,19 @@ annotate_sv <- function(sv) {
 
 
   all_sv_oncokb <- sv %>%
-    select("sample_id", "site_1_hugo_symbol", "site_2_hugo_symbol", "structural_variant_type", "is_functional")
+    select(any_of(c("sample_id", "site_1_hugo_symbol", "site_2_hugo_symbol", "structural_variant_type", "is_functional", "tumor_type")))
 
   make_url <- function(sample_id, site_1_hugo_symbol, site_2_hugo_symbol,
-                       structural_variant_type, is_functional) {
+                       structural_variant_type, is_functional, tumor_type) {
 
     url <- glue::glue("https://www.oncokb.org/api/v1/annotate/structuralVariants?hugoSymbolA=",
                       "{site_1_hugo_symbol}&hugoSymbolB={site_2_hugo_symbol}&structuralVariantType=",
                       "{structural_variant_type}&isFunctionalFusion={is_functional}&referenceGenome=GRCh37")
+
+
+    if(annotate_tumor_type) {
+      url <- glue::glue(url, "&tumorType={tumor_type}")
+    }
 
 
     token <- Sys.getenv('ONCOKB_TOKEN')
@@ -108,6 +111,15 @@ annotate_sv <- function(sv) {
     janitor::clean_names() %>%
     dplyr:: rename_with(~ stringr::str_remove(., "query_"), .cols = starts_with("query_")) %>%
     select("sample_id", everything())
+
+
+  # Tumor Type - Remove Cols if None  ------------------------------------------
+  if (!annotate_tumor_type) {
+    all_sv_oncokb <- all_sv_oncokb %>%
+      select(-contains("treatments"))
+    cli::cli_alert_info("No {.val tumor_type} found in data. No treatment-level annotations will be returned.")
+  }
+
 
   all_sv_oncokb
 

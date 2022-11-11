@@ -16,8 +16,8 @@ an annotated sv file
 Annotate Structural Variants
 }
 \examples{
-ex_sv <- blca_sv[1:10,]
+sv <- blca_sv[1:10,]
 
-x <- annotate_sv(sv = ex_sv)
+x <- annotate_sv(sv = sv)
 
 }

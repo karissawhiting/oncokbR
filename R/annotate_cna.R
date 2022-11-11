@@ -18,6 +18,9 @@ annotate_cna <- function(cna) {
 
   cna <- rename_columns(cna)
 
+  annotate_tumor_type <- ("tumor_type" %in% names(cna))
+
+
   cna <- cna %>%
     mutate(hugo_symbol = as.character(.data$hugo_symbol)) %>%
     mutate(alteration = tolower(stringr::str_trim(as.character(.data$alteration))))
@@ -48,15 +51,15 @@ annotate_cna <- function(cna) {
   )
 
   all_cna_oncokb <- cna %>%
-    select("sample_id", "hugo_symbol", "alteration_cleaned", "tumor_type")
+    select(any_of(c("sample_id", "hugo_symbol", "alteration_cleaned", "tumor_type")))
+
 
   make_url <- function(sample_id, hugo_symbol, alteration_cleaned, tumor_type) {
 
     url <- glue::glue("https://www.oncokb.org/api/v1/annotate/copyNumberAlterations?hugoSymbol=",
-                      "{hugo_symbol}&copyNameAlterationType={alteration_cleaned}&referenceGenome=GRCh37&",
-                      "tumorType={tumor_type}")
+                      "{hugo_symbol}&copyNameAlterationType={alteration_cleaned}&referenceGenome=GRCh37")
 
-    if(("tumor_type" %in% names(cna))) {
+    if(annotate_tumor_type) {
       url <- glue::glue(url, "&tumorType={tumor_type}")
     }
 
@@ -86,6 +89,14 @@ annotate_cna <- function(cna) {
     janitor::clean_names() %>%
     select(-contains("query_")) %>%
     select("sample_id", everything())
+
+  # Tumor Type - Remove Cols if None  ------------------------------------------
+  if (!annotate_tumor_type) {
+    all_cna_oncokb <- all_cna_oncokb %>%
+      select(-contains("treatments"))
+    cli::cli_alert_info("No {.val tumor_type} found in data. No treatment-level annotations will be returned.")
+  }
+
 
   all_cna_oncokb
 
