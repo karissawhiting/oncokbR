@@ -41,11 +41,14 @@ annotate_sv <- function(sv) {
   levels_in_data <- names(table(sv$variant_class))
 
   # explicitely code NAs
-  if("NA" %in% levels_in_data) {
+  if(any(
+    c("NA", "") %in% levels_in_data |
+         sum(is.na(levels_in_data) > 1))) {
     sv <- sv %>%
       mutate(variant_class =
         case_when(
-          (.data$variant_class %in% "NA" |
+          (.data$variant_class %in% c("NA") |
+             .data$variant_class %in% c("") |
             is.na(.data$variant_class)) ~ "UNKNOWN",
           TRUE ~ .data$variant_class))
   }
@@ -64,7 +67,7 @@ annotate_sv <- function(sv) {
   not_allowed <- levels_in_data[!levels_in_data %in% all_allowed]
 
   if(length(not_allowed) > 0) {
-    cli::cli_abort(c("Unknown values in {.field alteration} field: {.val {not_allowed}}",
+    cli::cli_abort(c("Unknown values in {.field variant_class} field: {.val {not_allowed}}",
                      "Must be one of the following: {.val {all_allowed}}"))
   }
 
