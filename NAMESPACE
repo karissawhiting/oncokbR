@@ -3,6 +3,7 @@
 export("%>%")
 export(annotate_cna)
 export(annotate_mutations)
+export(annotate_sv)
 export(rename_columns)
 import(dplyr)
 import(httr)

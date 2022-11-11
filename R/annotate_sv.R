@@ -1,10 +1,10 @@
 
 
-#' Annotate CNA
+#' Annotate Structural Variants
 #'
-#' @param cna a cna file in long format (similar to maf file)
+#' @param sv a cna file in long format (similar to maf file)
 #'
-#' @return an annotated cna file
+#' @return an annotated sv file
 #' @export
 #' @import dplyr
 #'

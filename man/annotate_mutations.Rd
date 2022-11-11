@@ -17,7 +17,12 @@ Annotate Mutations
 }
 \examples{
 ex_mut <- blca_mutation[1:50, ]
+
+# Annotate without tumor type -----
+x <- annotate_mutations(ex_mut)
+
+# Annotate with tumor type -----
 ex_mut$tumor_type = "BLCA"
-annotate_mutations(ex_mut)
+y <- annotate_mutations(ex_mut)
 
 }
