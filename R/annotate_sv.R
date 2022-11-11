@@ -106,7 +106,7 @@ annotate_sv <- function(sv) {
 
   all_sv_oncokb <- all_sv_oncokb %>%
     janitor::clean_names() %>%
-    select(-contains("query_")) %>%
+    dplyr:: rename_with(~ stringr::str_remove(., "query_"), .cols = starts_with("query_")) %>%
     select("sample_id", everything())
 
   all_sv_oncokb
