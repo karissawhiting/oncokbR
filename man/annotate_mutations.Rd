@@ -4,13 +4,13 @@
 \alias{annotate_mutations}
 \title{Annotate Mutations}
 \usage{
-annotate_mutations(mutations, annotate_by = NULL)
+annotate_mutations(mutations, annotate_by = c("protein_change", "hgvsg"))
 }
 \arguments{
 \item{mutations}{a mutations file in MAF, or similar format}
 
 \item{annotate_by}{Can indicate whether to annotate by "protein_change" or "hgvsg (see oncoKB API docs for more info).
-If none specified, a guess will be made according to columns in your data.}
+"Default is \code{protein_change}}
 }
 \value{
 an annotated mutations file
@@ -26,10 +26,8 @@ mutations <- oncokbR::blca_mutation[1:10, ]
 x <- annotate_mutations(mutations)
 
 # Annotate with tumor type -----
-mutations$tumor_type = "BLCA"
-y <- annotate_mutations(mutations)
 
 # Annotate by HGVSg
-z <- annotate_mutations(oncokbR::mutations_hgvsg)
+z <- annotate_mutations(oncokbR::mutations_hgvsg, annotate_by =  "hgvsg")
 
 }

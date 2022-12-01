@@ -17,47 +17,38 @@
 annotate_cna <- function(cna) {
 
   cna <- rename_columns(cna)
-
   annotate_tumor_type <- ("tumor_type" %in% names(cna))
 
+  # Check required columns & data types ---------------------------------------
+  required_cols <- c("sample_id", "hugo_symbol", "alteration")
+  column_names <- colnames(cna)
 
+  which_missing <- required_cols[which(!(required_cols %in% column_names))]
+
+  if(length(which_missing) > 0) {
+    cli::cli_abort("The following required columns are missing in your mutations data: {.field {which_missing}}")
+  }
+
+  # Clean Data --------------------------------------------------------------
   cna <- cna %>%
     mutate(hugo_symbol = as.character(.data$hugo_symbol)) %>%
     mutate(alteration = tolower(stringr::str_trim(as.character(.data$alteration))))
 
   levels_in_data <- names(table(cna$alteration))
 
-  allowed_chr_levels <- c(
-    "neutral" = "0",
-    "DELETION" = "-2",
-    "LOSS" = "-1.5",
-    "LOSS" = "-1",
-    "GAIN" = "1",
-    "AMPLIFICATION" = "2"
-  )
-
-  all_allowed <- c(allowed_chr_levels, names(allowed_chr_levels))
-  not_allowed <- levels_in_data[!levels_in_data %in% all_allowed]
-
-  if(length(not_allowed) > 0) {
-    cli::cli_abort(c("Unknown values in {.field alteration} field: {.val {not_allowed}}",
-                     "Must be one of the following: {.val {all_allowed}}"))
-  }
-
-
-  suppressWarnings(
-    cna <- cna %>%
-      mutate(alteration_cleaned = forcats::fct_recode(.data$alteration, !!!allowed_chr_levels))
-  )
+  # recode alterations
+  cna <- cna %>%
+    mutate(alteration = recode_cna(.data$alteration)) %>%
+    mutate(alteration = toupper(.data$alteration))
 
   all_cna_oncokb <- cna %>%
-    select(any_of(c("sample_id", "hugo_symbol", "alteration_cleaned", "tumor_type")))
+    select(any_of(c("sample_id", "hugo_symbol", "alteration", "tumor_type")))
 
 
-  make_url <- function(sample_id, hugo_symbol, alteration_cleaned, tumor_type) {
+  make_url <- function(sample_id, hugo_symbol, alteration, tumor_type) {
 
     url <- glue::glue("https://www.oncokb.org/api/v1/annotate/copyNumberAlterations?hugoSymbol=",
-                      "{hugo_symbol}&copyNameAlterationType={alteration_cleaned}&referenceGenome=GRCh37")
+                      "{hugo_symbol}&copyNameAlterationType={alteration}&referenceGenome=GRCh37")
 
     if(annotate_tumor_type) {
       url <- glue::glue(url, "&tumorType={tumor_type}")

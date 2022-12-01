@@ -10,3 +10,4 @@ library(testthat)
 library(oncokbR)
 
 test_check("oncokbR")
+

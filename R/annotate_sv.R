@@ -16,21 +16,34 @@
 annotate_sv <- function(sv) {
 
   sv <- rename_columns(sv)
-
   annotate_tumor_type <- ("tumor_type" %in% names(sv))
 
+  # Check required columns & data types ---------------------------------------
+  required_cols <- c("sample_id", "site_1_hugo_symbol", "site_2_hugo_symbol", "variant_class")
+  column_names <- colnames(sv)
+
+  which_missing <- required_cols[which(!(required_cols %in% column_names))]
+
+  if(length(which_missing) > 0) {
+    cli::cli_abort("The following required columns are missing in your mutations data: {.field {which_missing}}")
+  }
+
+  # Clean Data --------------------------------------------------------------
   sv <- sv %>%
     mutate(hugo_symbol = as.character(.data$site_1_hugo_symbol)) %>%
     mutate(hugo_symbol = as.character(.data$site_2_hugo_symbol)) %>%
     mutate(structural_variant_type =
-             toupper(stringr::str_trim(as.character(.data$variant_class)))) %>%
-    mutate(structural_variant_type = case_when(
-      (is.na(.data$variant_class) | structural_variant_type == "NA") ~ "UNKNOWN",
-      TRUE ~ structural_variant_type
-    ))
+             stringr::str_trim(as.character(.data$variant_class))) %>%
+    mutate(structural_variant_type =
+             case_when(
+               .data$structural_variant_type %in% c("NA") |
+                 .data$structural_variant_type %in% c("") |
+                 is.na(.data$structural_variant_type) ~ "UNKNOWN",
+           TRUE ~ .data$structural_variant_type)) %>%
+    mutate(structural_variant_type = toupper(.data$structural_variant_type))
 
 
-  # Assume all structural variants are functions (this mirrors behavior in
+  # Assume all structural variants are functional (this mirrors behavior in
   # https://github.com/oncokb/oncokb-annotator/blob/47e4a158ee843ead75445982532eb149db7f3106/AnnotatorCore.py#L1506)
   if(!("is_functional" %in% names(sv))) {
     sv <- sv %>%
@@ -38,22 +51,9 @@ annotate_sv <- function(sv) {
 
   }
 
-  levels_in_data <- names(table(sv$variant_class))
+  # Clean Variant Class -----------------------------------------------------
 
-  # explicitely code NAs
-  if(any(
-    c("NA", "") %in% levels_in_data |
-         sum(is.na(levels_in_data) > 1))) {
-    sv <- sv %>%
-      mutate(variant_class =
-        case_when(
-          (.data$variant_class %in% c("NA") |
-             .data$variant_class %in% c("") |
-            is.na(.data$variant_class)) ~ "UNKNOWN",
-          TRUE ~ .data$variant_class))
-  }
-
-  levels_in_data <- names(table(sv$variant_class))
+  levels_in_data <- names(table(sv$structural_variant_type))
 
   allowed_chr_levels <- c("DELETION",
                           "TRANSLOCATION",
@@ -71,6 +71,8 @@ annotate_sv <- function(sv) {
                      "Must be one of the following: {.val {all_allowed}}"))
   }
 
+
+  # API Call ----------------------------------------------------------------
 
   all_sv_oncokb <- sv %>%
     select(any_of(c("sample_id", "site_1_hugo_symbol", "site_2_hugo_symbol", "structural_variant_type", "is_functional", "tumor_type")))

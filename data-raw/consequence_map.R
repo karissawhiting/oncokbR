@@ -32,6 +32,7 @@ consequence_map = tribble(
 
   # Karissa Added,
   'Splice_Region',  'splice_region_variant', NA, NA,
+  'Intron', 'intron_variant', NA, NA
 )
 
 

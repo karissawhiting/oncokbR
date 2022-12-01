@@ -19,7 +19,7 @@ Annotate Mutations By HGVSg
 
 
 mutations <- rename_columns(oncokbR::mutations_hgvsg)
-.annotate_mutations_by_hgvsg(mutations)
+.annotate_mutations_by_hgvsg(mutations, annotate_tumor_type = FALSE)
 
 }
 \keyword{internal}

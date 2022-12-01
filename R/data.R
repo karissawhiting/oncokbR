@@ -22,7 +22,12 @@
 #' @format A data frame with 13 rows of structural variant data from
 "blca_sv"
 
-
+#' Generated mutation data
+#'
+#' A dataset of mutations, with hgvsg data
+#'
+#' @format A data frame with 13 rows of structural variant data from
+"mutations_hgvsg"
 
 #' Mutation data from ACC TCGA
 #'

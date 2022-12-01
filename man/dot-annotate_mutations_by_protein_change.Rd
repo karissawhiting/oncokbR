@@ -16,8 +16,9 @@ a dataframe of annotated mutations
 Annotate Mutations By Protein Change
 }
 \examples{
-mutations <- rename_columns(oncokbR::blca_mutation[1:10, ])
-.annotate_mutations_by_protein_change(mutations)
+mutations <- rename_columns(oncokbR::blca_mutation[1:10, ]) \%>\%
+    dplyr::mutate(consequence_final_coding = "any")
+.annotate_mutations_by_protein_change(mutations, annotate_tumor_type = FALSE)
 
 }
 \keyword{internal}
