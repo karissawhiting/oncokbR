@@ -55,6 +55,9 @@
     <loc>http://www.karissawhiting.com/oncokbR/reference/index.html</loc>
   </url>
   <url>
+    <loc>http://www.karissawhiting.com/oncokbR/reference/mutations_hgvsg.html</loc>
+  </url>
+  <url>
     <loc>http://www.karissawhiting.com/oncokbR/reference/names_df.html</loc>
   </url>
   <url>
@@ -65,6 +68,9 @@
   </url>
   <url>
     <loc>http://www.karissawhiting.com/oncokbR/reference/pipe.html</loc>
+  </url>
+  <url>
+    <loc>http://www.karissawhiting.com/oncokbR/reference/recode_cna.html</loc>
   </url>
   <url>
     <loc>http://www.karissawhiting.com/oncokbR/reference/rename_columns.html</loc>

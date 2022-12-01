@@ -65,9 +65,26 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">mutations</span> <span class="op">&lt;-</span> <span class="fu"><a href="rename_columns.html">rename_columns</a></span><span class="op">(</span><span class="fu">oncokbR</span><span class="fu">::</span><span class="va">mutations_hgvsg</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">.annotate_mutations_by_hgvsg</span><span class="op">(</span><span class="va">mutations</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in .f(sample_id = .l[[1L]][[i]], hgv_sg = .l[[2L]][[i]], ...):</span> argument "annotate_tumor_type" is missing, with no default</span>
+<span class="r-in"><span><span class="va">mutations</span> <span class="op">&lt;-</span> <span class="fu"><a href="rename_columns.html">rename_columns</a></span><span class="op">(</span><span class="fu">oncokbR</span><span class="fu">::</span><span class="va"><a href="mutations_hgvsg.html">mutations_hgvsg</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">.annotate_mutations_by_hgvsg</span><span class="op">(</span><span class="va">mutations</span>, annotate_tumor_type <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 14 × 7</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    type                                title status detail path  message sampl…¹</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                               <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> https://www.oncokb.org/problem/pro… Unau… 401    Full … /api… error.… TCGA-A…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> https://www.oncokb.org/problem/pro… Unau… 401    Full … /api… error.… TCGA-0…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> https://www.oncokb.org/problem/pro… Unau… 401    Full … /api… error.… TCGA-0…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> https://www.oncokb.org/problem/pro… Unau… 401    Full … /api… error.… TCGA-0…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> https://www.oncokb.org/problem/pro… Unau… 401    Full … /api… error.… TCGA-0…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> https://www.oncokb.org/problem/pro… Unau… 401    Full … /api… error.… TCGA-0…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> https://www.oncokb.org/problem/pro… Unau… 401    Full … /api… error.… TCGA-0…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> https://www.oncokb.org/problem/pro… Unau… 401    Full … /api… error.… TCGA-0…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> https://www.oncokb.org/problem/pro… Unau… 401    Full … /api… error.… TCGA-0…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> https://www.oncokb.org/problem/pro… Unau… 401    Full … /api… error.… TCGA-0…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> https://www.oncokb.org/problem/pro… Unau… 401    Full … /api… error.… TCGA-0…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> https://www.oncokb.org/problem/pro… Unau… 401    Full … /api… error.… TCGA-0…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">13</span> https://www.oncokb.org/problem/pro… Unau… 401    Full … /api… error.… TCGA-0…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">14</span> https://www.oncokb.org/problem/pro… Unau… 401    Full … /api… error.… TCGA-0…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with abbreviated variable name ¹​sample_id</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
