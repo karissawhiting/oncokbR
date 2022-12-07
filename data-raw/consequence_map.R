@@ -1,5 +1,6 @@
 
 library(tibble)
+library(dplyr)
 
 # https://github.com/oncokb/oncokb-annotator/blob/a80ef0ce937c287778c36d45bf1cc8397539910c/AnnotatorCore.py#L118
 consequence_map = tribble(
@@ -35,5 +36,7 @@ consequence_map = tribble(
   'Intron', 'intron_variant', NA, NA
 )
 
+consequence_map <- consequence_map %>%
+  mutate(across(everything(), ~tolower(.x)))
 
 usethis::use_data(consequence_map, overwrite = TRUE)

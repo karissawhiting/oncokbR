@@ -30,8 +30,8 @@ annotate_sv <- function(sv) {
 
   # Clean Data --------------------------------------------------------------
   sv <- sv %>%
-    mutate(hugo_symbol = as.character(.data$site_1_hugo_symbol)) %>%
-    mutate(hugo_symbol = as.character(.data$site_2_hugo_symbol)) %>%
+    mutate(site_1_hugo_symbol = as.character(.data$site_1_hugo_symbol)) %>%
+    mutate(site_2_hugo_symbol = as.character(.data$site_2_hugo_symbol)) %>%
     mutate(structural_variant_type =
              stringr::str_trim(as.character(.data$variant_class))) %>%
     mutate(structural_variant_type =

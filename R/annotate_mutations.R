@@ -72,8 +72,8 @@ annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgv
 
       # * Check Variant Consequence  -----------
 
-      variant_options <- unique(stats::na.omit(unlist(oncokbR::consequence_map)))
-      variant_in_data <- unique(mutations$variant_classification)
+      variant_options <- tolower(unique(stats::na.omit(unlist(oncokbR::consequence_map))))
+      variant_in_data <- tolower(unique(mutations$variant_classification))
 
       not_allowed <- stats::na.omit(variant_in_data[!(variant_in_data %in% variant_options)])
 
