@@ -76,9 +76,12 @@ annotate_cna <- function(cna) {
 
   all_cna_oncokb <- purrr::pmap_df(all_cna_oncokb,  make_url)
 
+  # Clean Results  ----------------------------------------------------------
+
   all_cna_oncokb <- all_cna_oncokb %>%
     janitor::clean_names() %>%
-    select(-contains("query_")) %>%
+    dplyr:: rename_with(~ stringr::str_remove(., "query_"),
+                        .cols = starts_with("query_")) %>%
     select("sample_id", everything())
 
   # Tumor Type - Remove Cols if None  ------------------------------------------

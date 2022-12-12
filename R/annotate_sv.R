@@ -74,11 +74,12 @@ annotate_sv <- function(sv) {
 
   # API Call ----------------------------------------------------------------
 
-  all_sv_oncokb <- sv %>%
-    select(any_of(c("sample_id", "site_1_hugo_symbol", "site_2_hugo_symbol", "structural_variant_type", "is_functional", "tumor_type")))
+  all_sv_oncokb_raw <- sv %>%
+    select(any_of(c("sample_id", "site_1_hugo_symbol", "site_2_hugo_symbol", "structural_variant_type", "is_functional", "tumor_type"))) %>%
+    mutate(event_index = 1:nrow(.))
 
   make_url <- function(sample_id, site_1_hugo_symbol, site_2_hugo_symbol,
-                       structural_variant_type, is_functional, tumor_type) {
+                       structural_variant_type, is_functional, tumor_type, event_index) {
 
     url <- glue::glue("https://www.oncokb.org/api/v1/annotate/structuralVariants?hugoSymbolA=",
                       "{site_1_hugo_symbol}&hugoSymbolB={site_2_hugo_symbol}&structuralVariantType=",
@@ -102,20 +103,30 @@ annotate_sv <- function(sv) {
 
     parsed <-unlist(parsed, recursive=TRUE) %>%
       tibble::enframe() %>%
-      tidyr::pivot_wider(names_from = .data$name,
+      tidyr::pivot_wider(names_from = "name",
                          values_fn = function(x) paste(x, collapse=","))
 
     parsed$sample_id <- sample_id
+    parsed$event_index <- event_index
+
     parsed
   }
 
 
-  all_sv_oncokb <- purrr::pmap_df(all_sv_oncokb,  make_url)
+  all_sv_oncokb <- purrr::pmap_df(all_sv_oncokb_raw,  make_url)
+
+  # Clean Results  ----------------------------------------------------------
 
   all_sv_oncokb <- all_sv_oncokb %>%
     janitor::clean_names() %>%
     dplyr:: rename_with(~ stringr::str_remove(., "query_"), .cols = starts_with("query_")) %>%
+    rename("query_hugo_symbol" = "hugo_symbol") %>%
     select("sample_id", everything())
+
+  all_sv_oncokb <- all_sv_oncokb %>%
+    left_join(select(all_sv_oncokb_raw, "site_1_hugo_symbol", "site_2_hugo_symbol", "event_index"),
+              by = "event_index") %>%
+    select(-"event_index")
 
 
   # Tumor Type - Remove Cols if None  ------------------------------------------
