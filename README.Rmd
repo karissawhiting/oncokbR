@@ -23,10 +23,7 @@ knitr::opts_chunk$set(
 {oncokbR} allows you to annotate genomic data sets using MSK's [OncoKB Precision Oncology Knowledge Base](https://www.oncokb.org/) directly in R. The package wraps existing [OncoKB API endpoints](https://api.oncokb.org/oncokb-website/api) so R users can easily leverage the existing API to annotate data on mutations, copy number alterations and fusions.
 
 
-This package is compatible with oncoKB data v3.16, but is subject to change as new versions are released. For more information on oncoKB, see [Chakravarty et al. 2017[(https://ascopubs.org/doi/full/10.1200/PO.17.00011). 
-
-Gao et al. Sci. Signal. 2013
-Cerami et al. Cancer Discov. 2012
+This package is compatible with oncoKB data v3.16, but is subject to change as new versions are released. For more information on oncoKB, see [Chakravarty et al. 2017](https://ascopubs.org/doi/full/10.1200/PO.17.00011). 
 
 ## Installation
 
