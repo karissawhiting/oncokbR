@@ -3,14 +3,30 @@
 \docType{data}
 \name{names_df}
 \alias{names_df}
-\title{Column Names Dictionary}
+\title{Data Frame of Column Names}
 \format{
-A data frame of accepted column names
+A data frame
+\describe{
+\item{maf_column_name}{data field names as they appear in common MAF file}
+\item{api_column_name}{data field names as they appear in common cBioPortal API retrieved files}
+\item{mutation_input}{does this field appear in mutation files?}
+\item{fusion_input}{does this field appear in mutation/sv files?}
+\item{cna_input}{does this field appear in CNA files?}
+\item{definition}{variable definition}
+\item{notes}{data notes}
+\item{sc_maf_column_name}{snake case version of \code{maf_column_name}}
+\item{sc_api_column_name}{snake case version of \code{api_column_name}}
+\item{caps_maf_column_name}{upper case version of \code{maf_column_name}}
+\item{caps_api_column_name}{upper case version of \code{api_column_name}}
+\item{internal_column_name}{name used for each field for all internal processing functions}
+}
 }
 \usage{
 names_df
 }
 \description{
-Dataset of recoding values for consequence mutation data
+Data frame of accepted data names for standard genomic files. This serves as a
+dictionary to help disambiguate raw column names from user entered mutation,
+CNA or structural variant data
 }
 \keyword{datasets}
