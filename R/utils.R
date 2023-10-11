@@ -13,33 +13,38 @@ rename_columns <- function(df_to_check) {
 
   names_df_long <- oncokbR::names_df %>%
     select(contains("_column_name")) %>%
-    tidyr::pivot_longer(-.data$internal_column_name)
+    tidyr::pivot_longer(-"internal_column_name") %>%
+    distinct()
 
 
   which_to_replace <- intersect(names(df_to_check), unique(names_df_long$value))
 
-  # create a temporary dictionary as a named vector
-  temp_dict <- names_df_long %>%
+  # create a temporary dictionary as a named vector- this should have all relevant values, including those unchanged
+  names_dict <- names_df_long %>%
     dplyr::filter(.data$value %in% which_to_replace) %>%
     select("internal_column_name",  "value") %>%
     dplyr::distinct() %>%
     tibble::deframe()
 
 
-  if(length(temp_dict) > 0) {
+  if(length(names_dict) > 0) {
 
     # store details on what has been changed.
-    message <- purrr::map2_chr(names(temp_dict),
-                               temp_dict,
+    message <- purrr::map2_chr(names(names_dict),
+                               names_dict,
                                ~paste0(.y, " renamed ", .x))
 
     names(message) <- rep("!", times = length(message))
 
 
     # rename those variables only
-    df_to_check %>%
-      dplyr::rename(!!temp_dict)
+    df_to_check <- df_to_check %>%
+      dplyr::rename(!!names_dict)
+
+    attr(df_to_check, "names_dict") <- names_dict
   }
+
+  return(df_to_check)
 }
 
 
