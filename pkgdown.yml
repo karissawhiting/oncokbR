@@ -2,7 +2,7 @@ pandoc: 2.19.2
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles: {}
-last_built: 2023-10-11T19:44Z
+last_built: 2023-10-11T20:33Z
 urls:
   reference: http://www.karissawhiting.com/oncokbR/reference
   article: http://www.karissawhiting.com/oncokbR/articles
