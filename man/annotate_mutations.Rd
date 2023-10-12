@@ -4,13 +4,24 @@
 \alias{annotate_mutations}
 \title{Annotate Mutations}
 \usage{
-annotate_mutations(mutations, annotate_by = c("protein_change", "hgvsg"))
+annotate_mutations(
+  mutations,
+  annotate_by = c("protein_change", "hgvsg"),
+  return_simple = TRUE,
+  return_query_params = FALSE
+)
 }
 \arguments{
 \item{mutations}{a mutations file in MAF, or similar format}
 
 \item{annotate_by}{Can indicate whether to annotate by "protein_change" or "hgvsg (see oncoKB API docs for more info).
 "Default is \code{protein_change}}
+
+\item{return_simple}{Default is \code{TRUE} where only a set of the most common columns are returned from oncoKB annotator
+see \code{oncokbR::output_dictionary} for more information on what is returned. If \code{FALSE} all raw columns are returned from API.}
+
+\item{return_query_params}{If \code{TRUE}, the specific parameters used to query the API are returned in new columns.
+This can be useful for troubleshooting the annotator. Default is \code{FALSE}.}
 }
 \value{
 an annotated mutations file

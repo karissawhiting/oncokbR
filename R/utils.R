@@ -118,5 +118,34 @@ recode_cna <- function(alteration_vector){
 
 
 
+#' Helper to select columns for output of annotation functions
+#'
+#' @param results input annotation result data frame
+#' @inheritParams annotate_mutations
+#'
+#' @return a string of select column names
+#' @export
+#'
+#' @examples
+get_select_columns <- function(results,
+                        return_simple,
+                        return_query_params) {
+
+  all_colnames <- names(results)
+  query_cols <- all_colnames[stringr::str_detect(all_colnames, "oncokb_query_")]
+
+  simple_cols <- switch(return_simple + 1,
+                        all_colnames[!(all_colnames %in% query_cols)],
+                        oncokbR::output_dictionary$output_column_name[which(oncokbR::output_dictionary$include_in_simple_output == "yes")])
+
+  query_cols <- switch(return_query_params + 1,
+                       NULL,
+                       query_cols)
+
+  selected_columns <- unique(c(query_cols, simple_cols))
+
+  return(selected_columns)
+
+}
 
 

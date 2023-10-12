@@ -8,6 +8,10 @@
 #' @param mutations a mutations file in MAF, or similar format
 #' @param annotate_by Can indicate whether to annotate by "protein_change" or "hgvsg (see oncoKB API docs for more info).
 #' "Default is `protein_change`
+#' @param return_simple Default is `TRUE` where only a set of the most common columns are returned from oncoKB annotator
+#' see `oncokbR::output_dictionary` for more information on what is returned. If `FALSE` all raw columns are returned from API.
+#' @param return_query_params If `TRUE`, the specific parameters used to query the API are returned in new columns.
+#' This can be useful for troubleshooting the annotator. Default is `FALSE`.
 #'
 #' @return an annotated mutations file
 #' @export
@@ -26,8 +30,9 @@
 #' z <- annotate_mutations(oncokbR::mutations_hgvsg, annotate_by =  "hgvsg")
 #'
 annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgvsg"),
-                               return_query_params = FALSE,
-                               return_simple = TRUE) {
+                               return_simple = TRUE,
+                               return_query_params = FALSE
+                               ) {
 
   mutations <- rename_columns(mutations)
   column_names <- colnames(mutations)
@@ -99,7 +104,6 @@ annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgv
 
   # HGVSG ----------------------------------------------------------------------
 
-  # HERE MAKE THIS MATCH ----
   # * Required Columns ------
 
   if(annotate_by == "hgvsg") {
@@ -117,6 +121,7 @@ annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgv
   # Annotate Mutations  -------------------------------------------------------
 
   annotate_tumor_type <- ("tumor_type" %in% names(mutations))
+
   mutations <- mutate(mutations, index = 1:nrow(mutations))
 
   all_mut_oncokb <- switch(annotate_by,
@@ -130,40 +135,15 @@ annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgv
 
   all_mut_oncokb <- all_mut_oncokb %>%
     janitor::clean_names() %>%
-    # dplyr:: rename_with(~ stringr::str_remove(., "query_"),
-    #                     .cols = starts_with("query_")) %>%
     dplyr:: rename_with(~paste0("oncokb_", .),
-                        .cols = -c("sample_id", "index")) %>%
-    select("sample_id", "index", everything())
+                        .cols = -c("sample_id", "index"))
 
-  if(return_simple == TRUE) {
-    all_mut_oncokb <- all_mut_oncokb %>%
-      select("sample_id",
-             "index",
-
-             contains("oncokb_query_"),
-
-             "oncokb_oncogenic",
-             "oncokb_mutation_effect_known_effect",
-             "oncokb_gene_exist",
-             "oncokb_variant_exist",
-             "oncokb_allele_exist",
-             "oncokb_mutation_effect_description",
-             "oncokb_hotspot",
-             "oncokb_gene_summary",
-             "oncokb_variant_summary",
-             "oncokb_last_update",
-             "oncokb_data_version",
-             "oncokb_vus",
-             "oncokb_highest_sensitive_level",
-             "oncokb_highest_fda_level")
-  }
-
-  if(return_query_params == FALSE) {
-    all_mut_oncokb <- all_mut_oncokb %>%
-      select(-contains("oncokb_query_"))
-  }
-
+  select_oputput_columns <- get_select_columns(all_mut_oncokb,
+                                               return_simple = return_simple,
+                                               return_query_params = return_query_params)
+  all_mut_oncokb <- select(all_mut_oncokb,
+                           any_of(c("sample_id", "index",
+                                    select_oputput_columns)))
 
 
   # If no tumor type, remove those columns
@@ -189,9 +169,9 @@ annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgv
 #'
 #' @keywords internal
 #' @examples
-#' mutations <- rename_columns(oncokbR::blca_mutation[1:10, ]) %>%
-#'     dplyr::mutate(index = 1:nrow(.)) %>%
-#'     dplyr::mutate(consequence_final_coding = "any")
+#' mutations <- rename_columns(oncokbR::blca_mutation[1:10, ])
+#' mutations$index <- 1:nrow(mutations)
+#' mutations$consequence_final_coding = "any"
 #' .annotate_mutations_by_protein_change(mutations, annotate_tumor_type = FALSE)
 #'
 .annotate_mutations_by_protein_change <- function(mutations, annotate_tumor_type) {
@@ -255,14 +235,15 @@ annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgv
 #'
 #'
 #' mutations <- rename_columns(oncokbR::mutations_hgvsg)
+#' mutations$index = 1:nrow(mutations)
 #' .annotate_mutations_by_hgvsg(mutations, annotate_tumor_type = FALSE)
 #'
 .annotate_mutations_by_hgvsg <- function(mutations, annotate_tumor_type) {
 
   all_mut_oncokb <- mutations %>%
-    select(any_of(c("sample_id", "hgv_sg", "tumor_type")))
+    select(any_of(c("index", "sample_id", "hgv_sg", "tumor_type")))
 
-  make_url <- function(sample_id, hgv_sg, tumor_type) {
+  make_url <- function(index, sample_id, hgv_sg, tumor_type) {
 
     url <- glue::glue("https://www.oncokb.org/api/v1/annotate/mutations/byHGVSg?hgvsg=",
                       "{hgv_sg}&referenceGenome=GRCh37")
@@ -289,6 +270,7 @@ annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgv
                          values_fn = function(x) paste(x, collapse=","))
 
     parsed$sample_id <- sample_id
+    parsed$index <- index
     parsed
 
   }
