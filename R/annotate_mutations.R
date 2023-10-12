@@ -25,7 +25,9 @@
 #' # Annotate by HGVSg
 #' z <- annotate_mutations(oncokbR::mutations_hgvsg, annotate_by =  "hgvsg")
 #'
-annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgvsg")) {
+annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgvsg"),
+                               return_query_params = FALSE,
+                               return_simple = TRUE) {
 
   mutations <- rename_columns(mutations)
   column_names <- colnames(mutations)
@@ -37,6 +39,7 @@ annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgv
 
     # * Required Columns ------
 
+    # create a protein start/end column from protein position if needed
     if(!("protein_pos_start" %in% column_names |
          "protein_pos_end" %in% column_names) &
        "protein_position" %in% column_names) {
@@ -96,6 +99,7 @@ annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgv
 
   # HGVSG ----------------------------------------------------------------------
 
+  # HERE MAKE THIS MATCH ----
   # * Required Columns ------
 
   if(annotate_by == "hgvsg") {
@@ -113,6 +117,7 @@ annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgv
   # Annotate Mutations  -------------------------------------------------------
 
   annotate_tumor_type <- ("tumor_type" %in% names(mutations))
+  mutations <- mutate(mutations, index = 1:nrow(mutations))
 
   all_mut_oncokb <- switch(annotate_by,
                            "protein_change" =
@@ -125,18 +130,51 @@ annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgv
 
   all_mut_oncokb <- all_mut_oncokb %>%
     janitor::clean_names() %>%
-    dplyr:: rename_with(~ stringr::str_remove(., "query_"),
-                        .cols = starts_with("query_")) %>%
-    select("sample_id", everything())
+    # dplyr:: rename_with(~ stringr::str_remove(., "query_"),
+    #                     .cols = starts_with("query_")) %>%
+    dplyr:: rename_with(~paste0("oncokb_", .),
+                        .cols = -c("sample_id", "index")) %>%
+    select("sample_id", "index", everything())
 
-  # If no tumor type, remove those columns
-  if (!annotate_tumor_type) {
+  if(return_simple == TRUE) {
     all_mut_oncokb <- all_mut_oncokb %>%
-      select(-contains("treatments"))
-    cli::cli_alert_info("No {.val tumor_type} found in data. No treatment-level annotations will be returned.")
+      select("sample_id",
+             "index",
+
+             contains("oncokb_query_"),
+
+             "oncokb_oncogenic",
+             "oncokb_mutation_effect_known_effect",
+             "oncokb_gene_exist",
+             "oncokb_variant_exist",
+             "oncokb_allele_exist",
+             "oncokb_mutation_effect_description",
+             "oncokb_hotspot",
+             "oncokb_gene_summary",
+             "oncokb_variant_summary",
+             "oncokb_last_update",
+             "oncokb_data_version",
+             "oncokb_vus",
+             "oncokb_highest_sensitive_level",
+             "oncokb_highest_fda_level")
   }
 
-  all_mut_oncokb
+  if(return_query_params == FALSE) {
+    all_mut_oncokb <- all_mut_oncokb %>%
+      select(-contains("oncokb_query_"))
+  }
+
+
+
+  # If no tumor type, remove those columns
+  # if (!annotate_tumor_type) {
+  #   all_mut_oncokb <- all_mut_oncokb %>%
+  #     select(-contains("treatments"))
+  #   cli::cli_alert_info("No {.val tumor_type} found in data. No treatment-level annotations will be returned.")
+  # }
+
+  all_mut_oncokb <- all_mut_oncokb %>%
+    left_join(mutations, ., by = c("sample_id", "index"))
 
 }
 
@@ -152,16 +190,17 @@ annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgv
 #' @keywords internal
 #' @examples
 #' mutations <- rename_columns(oncokbR::blca_mutation[1:10, ]) %>%
+#'     dplyr::mutate(index = 1:nrow(.)) %>%
 #'     dplyr::mutate(consequence_final_coding = "any")
 #' .annotate_mutations_by_protein_change(mutations, annotate_tumor_type = FALSE)
 #'
 .annotate_mutations_by_protein_change <- function(mutations, annotate_tumor_type) {
 
   all_mut_oncokb <- mutations %>%
-    select(any_of(c("sample_id", "hugo_symbol", "hgv_sp_short", "consequence_final_coding",
+    select(any_of(c("index", "sample_id", "hugo_symbol", "hgv_sp_short", "consequence_final_coding",
                     "protein_pos_start", "protein_pos_end", "tumor_type")))
 
-  make_url <- function(sample_id, hugo_symbol, hgv_sp_short,
+  make_url <- function(index, sample_id, hugo_symbol, hgv_sp_short,
                        consequence_final_coding,
                        protein_pos_start, protein_pos_end, tumor_type) {
 
@@ -183,13 +222,16 @@ annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgv
     parsed <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"),
                                  flatten = TRUE,
                                  simplifyVector = TRUE)
+
     # parsed <- parsed %>% discard("query")
     parsed <-unlist(parsed, recursive=TRUE) %>%
       tibble::enframe() %>%
-      tidyr::pivot_wider(names_from = .data$name,
+      tidyr::pivot_wider(names_from = "name",
                          values_fn = function(x) paste(x, collapse=","))
 
     parsed$sample_id <- sample_id
+    parsed$index <- index
+
     parsed
 
   }
@@ -243,7 +285,7 @@ annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgv
     # parsed <- parsed %>% discard("query")
     parsed <-unlist(parsed, recursive=TRUE) %>%
       tibble::enframe() %>%
-      tidyr::pivot_wider(names_from = .data$name,
+      tidyr::pivot_wider(names_from = "name",
                          values_fn = function(x) paste(x, collapse=","))
 
     parsed$sample_id <- sample_id
