@@ -72,3 +72,11 @@
 #'     \item{internal_column_name}{name used for each field for all internal processing functions}
 #'     }
 "names_df"
+
+
+#' Output Dictionary
+#'
+#' describes output columns returned from oncoKB API
+#'
+#' @format A data frame with one row per returned data pint
+"output_dictionary"
