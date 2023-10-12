@@ -59,14 +59,26 @@
 <!-- badges: start -->
 <!-- badges: end -->
 <p>{oncokbR} allows you to annotate genomic data sets using MSK’s <a href="https://www.oncokb.org/" class="external-link">OncoKB Precision Oncology Knowledge Base</a> directly in R. The package wraps existing <a href="https://api.oncokb.org/oncokb-website/api" class="external-link">OncoKB API endpoints</a> so R users can easily leverage the existing API to annotate data on mutations, copy number alterations and fusions.</p>
-<p>This package is compatible with oncoKB data v3.16, but is subject to change as new versions are released. For more information on oncoKB, see [Chakravarty et al. 2017[(<a href="https://ascopubs.org/doi/full/10.1200/PO.17.00011" class="external-link uri">https://ascopubs.org/doi/full/10.1200/PO.17.00011</a>).</p>
-<p>Gao et al. Sci. Signal. 2013 Cerami et al. Cancer Discov. 2012</p>
+<p>This package is compatible with oncoKB data v3.16, but is subject to change as new versions are released. For more information on oncoKB, see <a href="https://ascopubs.org/doi/full/10.1200/PO.17.00011" class="external-link">Chakravarty et al. 2017</a>.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of oncokbR like so:</p>
+<p>You can install the development version of oncokbR with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">'karissawhiting/oncokbR'</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="authentication">Authentication<a class="anchor" aria-label="anchor" href="#authentication"></a>
+</h2>
+<p>In order to use this package, you will need to acquire an oncoKB API token and save it to your .Renviron file (or wherever you store credentials). You will need to register for an account on <a href="https://www.oncokb.org/" class="external-link">OncoKB Precision Oncology Knowledge Base</a>. Once your registration is approved, you will see a token under your <a href="https://www.oncokb.org/account/settings" class="external-link">Account Settings</a>. Save it in your .Renviron file as <code>ONCOKB_TOKEN</code>. This will save the token as an environmental variable called <code>ONCOKB_TOKEN</code> that can be recognized in all package functions.</p>
+<p><em>Tip: The following {usethis} function can easily find and open the .Renviron for you:</em></p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">usethis</span><span class="fu">::</span><span class="fu">edit_r_environ</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; • Edit '/Users/kwhiting/.Renviron'</span></span>
+<span><span class="co">#&gt; • Restart R for changes to take effect</span></span></code></pre></div>
+<p>Paste the token you were given (using the format below) in the .Renviron file and save the file changes. After saving you should restart your R session to ensure the token is saved and recognized.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ONCOKB_TOKEN</span> <span class="op">=</span> <span class="st">'YOUR_TOKEN'</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="annotate-data">Annotate Data<a class="anchor" aria-label="anchor" href="#annotate-data"></a>
@@ -74,7 +86,7 @@
 <div class="section level3">
 <h3 id="annotate-mutations">Annotate Mutations:<a class="anchor" aria-label="anchor" href="#annotate-mutations"></a>
 </h3>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://www.karissawhiting.com/oncokbR/">oncokbR</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -86,7 +98,7 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span></code></pre></div>
 <p>Annotate MAF data with tumor type indicated for annotations on oncogenicity and oncoKB treatment levels:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">blca_mutation</span> <span class="op">&lt;-</span> <span class="fu">oncokbR</span><span class="fu">::</span><span class="va"><a href="reference/blca_mutation.html">blca_mutation</a></span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>tumor_type <span class="op">=</span> <span class="st">"BLCA"</span><span class="op">)</span></span>
 <span></span>
@@ -96,9 +108,9 @@
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">oncogenic</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; oncogenic</span></span>
-<span><span class="co">#&gt; Likely Oncogenic        Oncogenic          Unknown </span></span>
-<span><span class="co">#&gt;                4                1               45</span></span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<span><span class="co">#&gt;   Likely Neutral Likely Oncogenic        Oncogenic          Unknown </span></span>
+<span><span class="co">#&gt;                2                2                1               45</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">annotated_tt</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">treatments_level</span> <span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -106,7 +118,7 @@
 <span><span class="co">#&gt; LEVEL_3B </span></span>
 <span><span class="co">#&gt;        1</span></span></code></pre></div>
 <p>You can also annotated with no tumor type data for oncogenicity only:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">blca_mutation</span> <span class="op">&lt;-</span> <span class="fu">oncokbR</span><span class="fu">::</span><span class="va"><a href="reference/blca_mutation.html">blca_mutation</a></span></span>
 <span></span>
 <span><span class="va">annotated_no_tt</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/annotate_mutations.html">annotate_mutations</a></span><span class="op">(</span>mutations <span class="op">=</span> <span class="va">blca_mutation</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">50</span>,<span class="op">]</span><span class="op">)</span></span>
@@ -115,13 +127,13 @@
 <span><span class="va">annotated_no_tt</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">oncogenic</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; oncogenic</span></span>
-<span><span class="co">#&gt; Likely Oncogenic        Oncogenic          Unknown </span></span>
-<span><span class="co">#&gt;                4                1               45</span></span></code></pre></div>
+<span><span class="co">#&gt;   Likely Neutral Likely Oncogenic        Oncogenic          Unknown </span></span>
+<span><span class="co">#&gt;                2                2                1               45</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="annotate-cna">Annotate CNA:<a class="anchor" aria-label="anchor" href="#annotate-cna"></a>
 </h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">blca_cna</span> <span class="op">&lt;-</span> <span class="va">blca_cna</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>tumor_type <span class="op">=</span> <span class="st">"BLCA"</span><span class="op">)</span></span>
 <span></span>
@@ -135,7 +147,7 @@
 <div class="section level3">
 <h3 id="annotate-structural-variants">Annotate Structural Variants:<a class="anchor" aria-label="anchor" href="#annotate-structural-variants"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">blca_sv</span> <span class="op">&lt;-</span> <span class="va">blca_sv</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>tumor_type <span class="op">=</span> <span class="st">"BLCA"</span><span class="op">)</span></span>
