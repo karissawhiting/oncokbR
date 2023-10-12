@@ -22,19 +22,18 @@ knitr::opts_chunk$set(
 
 {oncokbR} allows you to annotate genomic data sets using MSK's [OncoKB Precision Oncology Knowledge Base](https://www.oncokb.org/) directly in R. The package wraps existing [OncoKB API endpoints](https://api.oncokb.org/oncokb-website/api) so R users can easily leverage the existing API to annotate data on mutations, copy number alterations and fusions.
 
-
 This package is compatible with oncoKB data v3.16, but is subject to change as new versions are released. For more information on oncoKB, see [Chakravarty et al. 2017](https://ascopubs.org/doi/full/10.1200/PO.17.00011). 
 
 ## Installation
 
-You can install the development version of oncokbR like so:
+You can install the development version of oncokbR with:
 
 ``` r
 remotes::install_github('karissawhiting/oncokbR')
 ```
 ## Authentication
 
-In order to use this packe, you will need to acquire a token and save it to your .Renviron file (or wherever you store credentials). You will need to register for an account on [OncoKB Precision Oncology Knowledge Base](https://www.oncokb.org/). Once your registration is approved, you will see a token under your [Account Settings](https://www.oncokb.org/account/settings). Save it in your .Renviron file. This will save the token as an environmental variable so you don’t have to hard code the secret key in your scripts.
+In order to use this package, you will need to acquire an oncoKB API token and save it to your .Renviron file (or wherever you store credentials). You will need to register for an account on [OncoKB Precision Oncology Knowledge Base](https://www.oncokb.org/). Once your registration is approved, you will see a token under your [Account Settings](https://www.oncokb.org/account/settings). Save it in your .Renviron file as `ONCOKB_TOKEN`. This will save the token as an environmental variable called `ONCOKB_TOKEN` that can be recognized in all package functions.
 
 *Tip: The following {usethis} function can easily find and open the .Renviron for you:*
 
