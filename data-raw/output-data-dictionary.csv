@@ -1,0 +1,39 @@
+﻿output_column_name,possible_values,definition,notes,returned_without_tumor_type,include_in_simple_output
+oncokb_gene_exist,TRUE/FALSE,Whether the gene has been curated by the OncoKB Team,,yes,yes
+oncokb_variant_exist,TRUE/FALSE,Whether the variant has been curated by the OncoKB Team,,yes,yes
+oncokb_allele_exist ,TRUE/FALSE,Whether the allele has been curated by the OncoKB Team,,yes,yes
+oncokb_oncogenic ,"Oncogenic, Likely Oncogenic, Likely Neutral, Inconclusive, Unknown, Resistance","In OncoKB™, “oncogenic” is defined as “referring to the ability to induce or cause cancer” as described in the second edition of The Biology of Cancer by Robert Weinberg (2014)",,yes,yes
+oncokb_mutation_effect_known_effect,"Gain-of-function, Likely Gain-of-function, Loss-of-function, Likely Loss-of-function, Switch-of-function, Likely Switch-of-function, Neutral, Likely Neutral, Inconclusive, Unknown",The biological effect of a mutation/alteration on the protein function that gives rise to changes in the biological properties of cells expressing the mutant/altered protein compared to cells expressing the wildtype protein.,,yes,yes
+oncokb_mutation_effect_description,,Description of the mutation effect,,yes,
+oncokb_hotspot,TRUE/FALSE,,,yes,yes
+oncokb_gene_summary,,Further details about the gene based on the hugo_symbol ,,yes,
+oncokb_variant_summary,,Further details about the variant based on the alteration,,yes,
+oncokb_tumor_type_summary,,Further details about the tumor type ,,yes,
+oncokb_prognostic_summary,,,,yes,
+oncokb_diagnostistic_summary,,,,yes,
+oncokb_data_version,vX.X,Version of the OncoKB database being used ,,yes,yes
+oncokb_last_update,Date,Last date of OncoKB update,,yes,yes
+oncokb_vus,TRUE/FALSE,,,yes,yes
+oncokb_mutation_effect_pmids,"PMID, Abstract, Website link",All citations related to the biological effect.,Can have more than 1 output column ,yes,
+oncokb_highest_sensitive_level,"LEVEL_1, LEVEL_2, LEVEL_3A, LEVEL_3B, LEVEL_4",The highest sensitive level of evidence for therapeutic implications. Order: LEVEL_1 > LEVEL_2 > LEVEL_3A > LEVEL_3B > LEVEL_4,,yes,yes
+oncokb_highest_fda_level,,,,yes,yes
+oncokb_treatments_alterations,,,Can have more than 1 output column ,,
+oncokb_treatments_drugs_ncit_code,,,Can have more than 1 output column ,,
+oncokb_treatments_drugs_drug_name ,,Name of the treatment drug,Can have more than 1 output column ,,
+oncokb_treatments_drugs_uuid,,,Can have more than 1 output column ,,
+oncokb_treatments_drugs_synonyms,,Other names for the treatment drug,Can have more than 1 output column ,,
+oncokb_treatments_level,,,Can have more than 1 output column ,,
+oncokb_treatments_fda_level,,,Can have more than 1 output column ,,
+oncokb_treatments_pmids,,All citations related to the treatment,Can have more than 1 output column ,,
+oncokb_treatments_description,,Further details about the treatment ,Can have more than 1 output column ,,
+oncokb_treatments_level_associated_cancer_type_id,,,Can have more than 1 output column ,,
+oncokb_treatments_level_associated_cancer_type_code,,,Can have more than 1 output column ,,
+oncokb_treatments_level_associated_cancer_type_color,,,Can have more than 1 output column ,,
+oncokb_treatments_level_associated_cancer_type_name,,,Can have more than 1 output column ,,
+oncokb_treatments_level_associated_cancer_type_tissue,,,Can have more than 1 output column ,,
+oncokb_treatments_level_associated_cancer_type_parent,,,Can have more than 1 output column ,,
+oncokb_treatments_level_associated_cancer_type_level,,,Can have more than 1 output column ,,
+oncokb_treatments_level_associated_cancer_type_tumor_form,,,Can have more than 1 output column ,,
+oncokb_treatments_level_associated_cancer_type_main_type_id,,,Can have more than 1 output column ,,
+oncokb_treatments_level_associated_cancer_type_main_type_name,,,Can have more than 1 output column ,,
+oncokb_treatments_level_associated_cancer_type_main_type_tumor_form,,,,,
