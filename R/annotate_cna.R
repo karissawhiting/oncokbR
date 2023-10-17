@@ -3,7 +3,7 @@
 #' Annotate CNA
 #'
 #' @param cna a cna file in long format (similar to maf file)
-#'
+#' @inheritParams annotate_mutations
 #' @return an annotated cna file
 #' @export
 #' @import dplyr
@@ -14,20 +14,19 @@
 #'
 #' x <- annotate_cna(ex_cna)
 #'
-annotate_cna <- function(cna) {
+annotate_cna <- function(cna,
+                         return_simple = TRUE,
+                         return_query_params = FALSE) {
 
   cna <- rename_columns(cna)
   annotate_tumor_type <- ("tumor_type" %in% names(cna))
 
   # Check required columns & data types ---------------------------------------
-  required_cols <- c("sample_id", "hugo_symbol", "alteration")
-  column_names <- colnames(cna)
+  required_cols_cna <- c("sample_id", "hugo_symbol", "alteration")
 
-  which_missing <- required_cols[which(!(required_cols %in% column_names))]
-
-  if(length(which_missing) > 0) {
-    cli::cli_abort("The following required columns are missing in your mutations data: {.field {which_missing}}")
-  }
+  .check_required_cols(data = cna,
+                       required_cols = required_cols_cna,
+                       data_name = "cna")
 
   # Clean Data --------------------------------------------------------------
   cna <- cna %>%
@@ -41,11 +40,17 @@ annotate_cna <- function(cna) {
     mutate(alteration = recode_cna(.data$alteration)) %>%
     mutate(alteration = toupper(.data$alteration))
 
+
+
+# Annotate CNA ------------------------------------------------------------
+
+  cna <- mutate(cna, index = 1:nrow(cna))
+
   all_cna_oncokb <- cna %>%
-    select(any_of(c("sample_id", "hugo_symbol", "alteration", "tumor_type")))
+    select(any_of(c("index", "sample_id", "hugo_symbol", "alteration", "tumor_type")))
 
 
-  make_url <- function(sample_id, hugo_symbol, alteration, tumor_type) {
+  make_url <- function(index, sample_id, hugo_symbol, alteration, tumor_type) {
 
     url <- glue::glue("https://www.oncokb.org/api/v1/annotate/copyNumberAlterations?hugoSymbol=",
                       "{hugo_symbol}&copyNameAlterationType={alteration}&referenceGenome=GRCh37")
@@ -64,35 +69,27 @@ annotate_cna <- function(cna) {
                                  flatten = TRUE,
                                  simplifyVector = TRUE)
 
-    parsed <-unlist(parsed, recursive=TRUE) %>%
+    parsed <- unlist(parsed, recursive=TRUE) %>%
       tibble::enframe() %>%
-      tidyr::pivot_wider(names_from = .data$name,
+      tidyr::pivot_wider(names_from = "name",
                   values_fn = function(x) paste(x, collapse=","))
 
     parsed$sample_id <- sample_id
+    parsed$index <- index
     parsed
   }
-
 
   all_cna_oncokb <- purrr::pmap_df(all_cna_oncokb,  make_url)
 
   # Clean Results  ----------------------------------------------------------
 
-  all_cna_oncokb <- all_cna_oncokb %>%
-    janitor::clean_names() %>%
-    dplyr:: rename_with(~ stringr::str_remove(., "query_"),
-                        .cols = starts_with("query_")) %>%
-    select("sample_id", everything())
+  all_cna_oncokb <- .clean_query_results(
+    query_result = all_cna_oncokb,
+    return_simple = return_simple,
+    return_query_params = return_query_params,
+    original_data = cna)
 
-  # Tumor Type - Remove Cols if None  ------------------------------------------
-  if (!annotate_tumor_type) {
-    all_cna_oncokb <- all_cna_oncokb %>%
-      select(-contains("treatments"))
-    cli::cli_alert_info("No {.val tumor_type} found in data. No treatment-level annotations will be returned.")
-  }
-
-
-  all_cna_oncokb
+  return(all_cna_oncokb)
 
 }
 

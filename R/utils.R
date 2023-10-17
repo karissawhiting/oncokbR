@@ -127,7 +127,7 @@ recode_cna <- function(alteration_vector){
 #' @export
 #'
 #' @examples
-get_select_columns <- function(results,
+.get_select_columns <- function(results,
                         return_simple,
                         return_query_params) {
 
@@ -149,3 +149,57 @@ get_select_columns <- function(results,
 }
 
 
+
+#' Clean API Query Results
+#'
+#' @param query_result a data frame returned from API
+#' @param original_data the original user input data frame
+#' @inheritParams annotate_mutations
+#' @return a cleaned data frame
+#' @export
+#'
+.clean_query_results <- function(query_result,
+                                 original_data,
+                                 return_simple,
+                                 return_query_params) {
+
+  query_result <- query_result %>%
+    janitor::clean_names() %>%
+    dplyr:: rename_with(~paste0("oncokb_", .),
+                        .cols = -c("sample_id", "index"))
+
+  select_oputput_columns <- .get_select_columns(query_result,
+                                               return_simple = return_simple,
+                                               return_query_params = return_query_params)
+  query_result <- select(query_result,
+                           any_of(c("sample_id", "index",
+                                    select_oputput_columns)))
+
+  query_result <- query_result %>%
+    left_join(original_data, ., by = c("sample_id", "index"))
+
+  return(query_result)
+}
+
+
+#' Check a Data Frame for Required Columns
+#'
+#' @param data A data frame to check
+#' @param required_cols A character specifying names of columns to check
+#' @param data_name Optionally specify how the data set should be called in error message.
+#' Default is NULL and will call it a generic name.
+#' @return If data set doesn't have required columns it will return an error message.
+#' If it does have required columns, nothing will be returned
+#' @keywords internal
+
+.check_required_cols <- function(data, required_cols, data_name = NULL) {
+
+  data_name <- data_name %||% ""
+  column_names <- colnames(data)
+  which_missing <- required_cols[which(!(required_cols %in% column_names))]
+
+  if(length(which_missing) > 0) {
+    cli::cli_abort("The following required columns are missing in your {data_name} data: {.field {which_missing}}")
+  }
+
+}

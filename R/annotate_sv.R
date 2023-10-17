@@ -19,14 +19,12 @@ annotate_sv <- function(sv) {
   annotate_tumor_type <- ("tumor_type" %in% names(sv))
 
   # Check required columns & data types ---------------------------------------
-  required_cols <- c("sample_id", "site_1_hugo_symbol", "site_2_hugo_symbol", "variant_class")
-  column_names <- colnames(sv)
+  required_cols_sv <- c("sample_id", "site_1_hugo_symbol", "site_2_hugo_symbol",
+                        "variant_class")
 
-  which_missing <- required_cols[which(!(required_cols %in% column_names))]
-
-  if(length(which_missing) > 0) {
-    cli::cli_abort("The following required columns are missing in your mutations data: {.field {which_missing}}")
-  }
+  .check_required_cols(data = sv,
+                       required_cols = required_cols_sv,
+                       data_name = "sv")
 
   # Clean Data --------------------------------------------------------------
   sv <- sv %>%
