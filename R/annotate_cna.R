@@ -50,7 +50,8 @@ annotate_cna <- function(cna,
     select(any_of(c("index", "sample_id", "hugo_symbol", "alteration", "tumor_type")))
 
 
-  make_url <- function(index, sample_id, hugo_symbol, alteration, tumor_type) {
+  make_url <- function(index, sample_id, hugo_symbol,
+                       alteration, tumor_type) {
 
     url <- glue::glue("https://www.oncokb.org/api/v1/annotate/copyNumberAlterations?hugoSymbol=",
                       "{hugo_symbol}&copyNameAlterationType={alteration}&referenceGenome=GRCh37")
