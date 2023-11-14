@@ -36,6 +36,8 @@ annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgv
 
   mutations <- rename_columns(mutations)
   column_names <- colnames(mutations)
+  annotate_tumor_type <- ("tumor_type" %in% column_names)
+
   annotate_by <- match.arg(annotate_by)
 
   # Protein Change -------------------------------------------------------------
@@ -112,10 +114,8 @@ annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgv
 
   }
 
-
   # Annotate Mutations  -------------------------------------------------------
 
-  annotate_tumor_type <- ("tumor_type" %in% names(mutations))
 
   mutations <- mutate(mutations, index = 1:nrow(mutations))
 
@@ -134,7 +134,14 @@ annotate_mutations <- function(mutations, annotate_by = c("protein_change", "hgv
     return_query_params = return_query_params,
     original_data = mutations)
 
+  # Tumor Type - Remove Cols if None  ------------------------------------------
+
+  all_mut_oncokb <- .tumor_type_warning(
+    annotate_tumor_type = annotate_tumor_type,
+    data = all_mut_oncokb)
+
   return(all_mut_oncokb)
+
 
 }
 

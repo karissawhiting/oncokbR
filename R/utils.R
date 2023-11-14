@@ -203,3 +203,28 @@ recode_cna <- function(alteration_vector){
   }
 
 }
+
+
+#' Warn if no tumor type annotation possible
+#'
+#' @param annotate_tumor_type TRUE if tumor type column is available in data
+#' @param data mutation, cna or sv data
+#'
+#' @return a warning and data set with edited columns
+#' @export
+#'
+#' @examples
+.tumor_type_warning <- function(annotate_tumor_type,
+                                data) {
+
+  if (!annotate_tumor_type) {
+
+    data <- data %>%
+      select(-contains("treatments"))
+
+    cli::cli_alert_info("No {.val tumor_type} found in data. No treatment-level annotations will be returned.")
+  }
+
+  return(data)
+
+}

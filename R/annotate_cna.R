@@ -90,6 +90,12 @@ annotate_cna <- function(cna,
     return_query_params = return_query_params,
     original_data = cna)
 
+  # Tumor Type - Remove Cols if None  ------------------------------------------
+
+  all_cna_oncokb <- .tumor_type_warning(
+    annotate_tumor_type = annotate_tumor_type,
+    data = all_cna_oncokb)
+
   return(all_cna_oncokb)
 
 }

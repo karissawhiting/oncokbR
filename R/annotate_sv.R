@@ -45,11 +45,15 @@ annotate_sv <- function(sv,
 
   # Assume all structural variants are functional (this mirrors behavior in
   # https://github.com/oncokb/oncokb-annotator/blob/47e4a158ee843ead75445982532eb149db7f3106/AnnotatorCore.py#L1506)
+
+  # intragenic not counted as functional (as per python annotator)
   if(!("is_functional" %in% names(sv))) {
     sv <- sv %>%
-      mutate(is_functional = "true")
-
-  }
+      mutate(is_functional =
+               case_when(
+                 site_1_hugo_symbol == site_1_hugo_symbol ~ "false",
+                 TRUE ~ "true"))
+    }
 
   # Clean Variant Class -----------------------------------------------------
 
@@ -132,11 +136,10 @@ annotate_sv <- function(sv,
     original_data = sv)
 
   # Tumor Type - Remove Cols if None  ------------------------------------------
-  if (!annotate_tumor_type) {
-    all_sv_oncokb <- all_sv_oncokb %>%
-      select(-contains("treatments"))
-    cli::cli_alert_info("No {.val tumor_type} found in data. No treatment-level annotations will be returned.")
-  }
+
+  all_sv_oncokb <- .tumor_type_warning(
+    annotate_tumor_type = annotate_tumor_type,
+    data = all_sv_oncokb)
 
   return(all_sv_oncokb)
 
