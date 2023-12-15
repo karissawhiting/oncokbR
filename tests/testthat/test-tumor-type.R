@@ -50,9 +50,9 @@ test_that("Correct columns returned with tumor_type", {
     return_simple = FALSE)
 
   col_diff <- setdiff(names(mut_tum), names(mut))
-  expect_equal(length(col_diff), 23)
+  expect_equal(length(col_diff), 47)
   expect_equal(sum(stringr::str_detect(col_diff, "treatments")),
-               22)
+               46)
 
   # cna -------
   cna_tum <- annotate_cna(

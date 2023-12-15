@@ -57,7 +57,7 @@ library(oncokbR)
 library(dplyr)
 ```
 
-Annotate MAF data with tumor type indicated for annotations on oncogenicity and oncoKB treatment levels:
+Annotate MAF data with tumor type indicated for annotations on oncogenicity and oncoKB treatment levels. This will show the highest sensitivity levels for bladder cancer specifically: 
 
 ```{r }
 blca_mutation <- oncokbR::blca_mutation %>%
@@ -65,28 +65,32 @@ blca_mutation <- oncokbR::blca_mutation %>%
 
 annotated_tt <- annotate_mutations(mutations = blca_mutation[1:50,])
 
-annotated_tt %>%
-  select(oncogenic) %>% 
-  table()
+annotated_tt$oncokb_oncogenic 
 
 ```
 
 
 ```{r}
 annotated_tt %>%
-  select(treatments_level ) %>% 
+  select(oncokb_highest_sensitive_level) %>% 
   table()
 ```
 
-You can also annotated with no tumor type data for oncogenicity only: 
+You can also annotated with no tumor type data for oncogenicity. Here you'll see the highest sensitive lever is higher than in the bladder specific annotation because it's referring to a non bladder cancer type that has a higher level. 
 
 ```{r }
 blca_mutation <- oncokbR::blca_mutation
 
 annotated_no_tt <- annotate_mutations(mutations = blca_mutation[1:50,])
 
+annotated_no_tt$oncokb_oncogenic
+```
+
+```{r }
 annotated_no_tt %>%
-  select(oncogenic) %>% table()
+  select(oncokb_highest_sensitive_level) %>% 
+  table()
+
 ```
 
 
@@ -98,7 +102,7 @@ blca_cna <- blca_cna %>%
 
 
 annotated <- annotate_cna(blca_cna[1:10,])
-table(annotated$oncogenic)
+table(annotated$oncokb_oncogenic)
 
 ```
 
@@ -111,5 +115,5 @@ blca_sv <- blca_sv %>%
 
 
 annotated <- annotate_sv(blca_sv[1:10,])
-table(annotated$oncogenic)
+table(annotated$oncokb_oncogenic)
 ```
