@@ -19,6 +19,7 @@ Annotate Mutations By HGVSg
 
 
 mutations <- rename_columns(oncokbR::mutations_hgvsg)
+mutations$index = 1:nrow(mutations)
 .annotate_mutations_by_hgvsg(mutations, annotate_tumor_type = FALSE)
 
 }

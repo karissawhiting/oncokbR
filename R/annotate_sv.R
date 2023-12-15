@@ -2,8 +2,8 @@
 
 #' Annotate Structural Variants
 #'
-#' @param sv a cna file in long format (similar to maf file)
-#'
+#' @param sv a sv file in long format (similar to maf file)
+#' @inheritParams annotate_mutations
 #' @return an annotated sv file
 #' @export
 #' @import dplyr
@@ -13,20 +13,20 @@
 #'
 #' x <- annotate_sv(sv = sv)
 #'
-annotate_sv <- function(sv) {
+annotate_sv <- function(sv,
+                        return_simple = TRUE,
+                        return_query_params = FALSE) {
 
   sv <- rename_columns(sv)
   annotate_tumor_type <- ("tumor_type" %in% names(sv))
 
   # Check required columns & data types ---------------------------------------
-  required_cols <- c("sample_id", "site_1_hugo_symbol", "site_2_hugo_symbol", "variant_class")
-  column_names <- colnames(sv)
+  required_cols_sv <- c("sample_id", "site_1_hugo_symbol", "site_2_hugo_symbol",
+                        "variant_class")
 
-  which_missing <- required_cols[which(!(required_cols %in% column_names))]
-
-  if(length(which_missing) > 0) {
-    cli::cli_abort("The following required columns are missing in your mutations data: {.field {which_missing}}")
-  }
+  .check_required_cols(data = sv,
+                       required_cols = required_cols_sv,
+                       data_name = "sv")
 
   # Clean Data --------------------------------------------------------------
   sv <- sv %>%
@@ -45,11 +45,15 @@ annotate_sv <- function(sv) {
 
   # Assume all structural variants are functional (this mirrors behavior in
   # https://github.com/oncokb/oncokb-annotator/blob/47e4a158ee843ead75445982532eb149db7f3106/AnnotatorCore.py#L1506)
+
+  # intragenic not counted as functional (as per python annotator)
   if(!("is_functional" %in% names(sv))) {
     sv <- sv %>%
-      mutate(is_functional = "true")
-
-  }
+      mutate(is_functional =
+               case_when(
+                 site_1_hugo_symbol == site_1_hugo_symbol ~ "false",
+                 TRUE ~ "true"))
+    }
 
   # Clean Variant Class -----------------------------------------------------
 
@@ -72,14 +76,16 @@ annotate_sv <- function(sv) {
   }
 
 
-  # API Call ----------------------------------------------------------------
+  # Annotate SV ----------------------------------------------------------------
+
+  sv <- mutate(sv, index = 1:nrow(sv))
 
   all_sv_oncokb_raw <- sv %>%
-    select(any_of(c("sample_id", "site_1_hugo_symbol", "site_2_hugo_symbol", "structural_variant_type", "is_functional", "tumor_type"))) %>%
-    mutate(event_index = 1:nrow(.))
+    select(any_of(c("index", "sample_id",
+                    "site_1_hugo_symbol", "site_2_hugo_symbol", "structural_variant_type", "is_functional", "tumor_type")))
 
-  make_url <- function(sample_id, site_1_hugo_symbol, site_2_hugo_symbol,
-                       structural_variant_type, is_functional, tumor_type, event_index) {
+  make_url <- function(index, sample_id, site_1_hugo_symbol, site_2_hugo_symbol,
+                       structural_variant_type, is_functional, tumor_type) {
 
     url <- glue::glue("https://www.oncokb.org/api/v1/annotate/structuralVariants?hugoSymbolA=",
                       "{site_1_hugo_symbol}&hugoSymbolB={site_2_hugo_symbol}&structuralVariantType=",
@@ -107,7 +113,7 @@ annotate_sv <- function(sv) {
                          values_fn = function(x) paste(x, collapse=","))
 
     parsed$sample_id <- sample_id
-    parsed$event_index <- event_index
+    parsed$index <- index
 
     parsed
   }
@@ -123,21 +129,20 @@ annotate_sv <- function(sv) {
     rename("query_hugo_symbol" = "hugo_symbol") %>%
     select("sample_id", everything())
 
-  all_sv_oncokb <- all_sv_oncokb %>%
-    left_join(select(all_sv_oncokb_raw, "site_1_hugo_symbol", "site_2_hugo_symbol", "event_index"),
-              by = "event_index") %>%
-    select(-"event_index")
-
+  all_sv_oncokb <- .clean_query_results(
+    query_result = all_sv_oncokb,
+    return_simple = return_simple,
+    return_query_params = return_query_params,
+    original_data = sv)
 
   # Tumor Type - Remove Cols if None  ------------------------------------------
-  if (!annotate_tumor_type) {
-    all_sv_oncokb <- all_sv_oncokb %>%
-      select(-contains("treatments"))
-    cli::cli_alert_info("No {.val tumor_type} found in data. No treatment-level annotations will be returned.")
-  }
 
+  all_sv_oncokb <- .tumor_type_warning(
+    annotate_tumor_type = annotate_tumor_type,
+    data = all_sv_oncokb)
 
-  all_sv_oncokb
+  return(all_sv_oncokb)
+
 
 }
 

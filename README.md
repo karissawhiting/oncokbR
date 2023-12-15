@@ -73,7 +73,8 @@ library(dplyr)
 ```
 
 Annotate MAF data with tumor type indicated for annotations on
-oncogenicity and oncoKB treatment levels:
+oncogenicity and oncoKB treatment levels. This will show the highest
+sensitivity levels for bladder cancer specifically:
 
 ``` r
 blca_mutation <- oncokbR::blca_mutation %>%
@@ -81,24 +82,35 @@ blca_mutation <- oncokbR::blca_mutation %>%
 
 annotated_tt <- annotate_mutations(mutations = blca_mutation[1:50,])
 
-annotated_tt %>%
-  select(oncogenic) %>% 
-  table()
-#> oncogenic
-#>   Likely Neutral Likely Oncogenic        Oncogenic          Unknown 
-#>                2                2                1               45
+annotated_tt$oncokb_oncogenic 
+#>  [1] "Unknown"          "Unknown"          "Unknown"          "Unknown"         
+#>  [5] "Unknown"          "Unknown"          "Unknown"          "Unknown"         
+#>  [9] "Unknown"          "Oncogenic"        "Unknown"          "Unknown"         
+#> [13] "Unknown"          "Unknown"          "Unknown"          "Unknown"         
+#> [17] "Unknown"          "Unknown"          "Unknown"          "Unknown"         
+#> [21] "Unknown"          "Unknown"          "Unknown"          "Unknown"         
+#> [25] "Unknown"          "Unknown"          "Unknown"          "Unknown"         
+#> [29] "Unknown"          "Unknown"          "Unknown"          "Unknown"         
+#> [33] "Unknown"          "Likely Neutral"   "Likely Neutral"   "Unknown"         
+#> [37] "Unknown"          "Unknown"          "Unknown"          "Unknown"         
+#> [41] "Likely Oncogenic" "Unknown"          "Unknown"          "Unknown"         
+#> [45] "Unknown"          "Likely Oncogenic" "Unknown"          "Unknown"         
+#> [49] "Unknown"          "Unknown"
 ```
 
 ``` r
 annotated_tt %>%
-  select(treatments_level ) %>% 
+  select(oncokb_highest_sensitive_level) %>% 
   table()
-#> treatments_level
+#> oncokb_highest_sensitive_level
 #> LEVEL_3B 
 #>        1
 ```
 
-You can also annotated with no tumor type data for oncogenicity only:
+You can also annotated with no tumor type data for oncogenicity. Here
+you’ll see the highest sensitive lever is higher than in the bladder
+specific annotation because it’s referring to a non bladder cancer type
+that has a higher level.
 
 ``` r
 blca_mutation <- oncokbR::blca_mutation
@@ -106,11 +118,29 @@ blca_mutation <- oncokbR::blca_mutation
 annotated_no_tt <- annotate_mutations(mutations = blca_mutation[1:50,])
 #> ℹ No "tumor_type" found in data. No treatment-level annotations will be returned.
 
+annotated_no_tt$oncokb_oncogenic
+#>  [1] "Unknown"          "Unknown"          "Unknown"          "Unknown"         
+#>  [5] "Unknown"          "Unknown"          "Unknown"          "Unknown"         
+#>  [9] "Unknown"          "Oncogenic"        "Unknown"          "Unknown"         
+#> [13] "Unknown"          "Unknown"          "Unknown"          "Unknown"         
+#> [17] "Unknown"          "Unknown"          "Unknown"          "Unknown"         
+#> [21] "Unknown"          "Unknown"          "Unknown"          "Unknown"         
+#> [25] "Unknown"          "Unknown"          "Unknown"          "Unknown"         
+#> [29] "Unknown"          "Unknown"          "Unknown"          "Unknown"         
+#> [33] "Unknown"          "Likely Neutral"   "Likely Neutral"   "Unknown"         
+#> [37] "Unknown"          "Unknown"          "Unknown"          "Unknown"         
+#> [41] "Likely Oncogenic" "Unknown"          "Unknown"          "Unknown"         
+#> [45] "Unknown"          "Likely Oncogenic" "Unknown"          "Unknown"         
+#> [49] "Unknown"          "Unknown"
+```
+
+``` r
 annotated_no_tt %>%
-  select(oncogenic) %>% table()
-#> oncogenic
-#>   Likely Neutral Likely Oncogenic        Oncogenic          Unknown 
-#>                2                2                1               45
+  select(oncokb_highest_sensitive_level) %>% 
+  table()
+#> oncokb_highest_sensitive_level
+#> LEVEL_1 
+#>       1
 ```
 
 ### Annotate CNA:
@@ -121,7 +151,7 @@ blca_cna <- blca_cna %>%
 
 
 annotated <- annotate_cna(blca_cna[1:10,])
-table(annotated$oncogenic)
+table(annotated$oncokb_oncogenic)
 #> 
 #> Likely Oncogenic        Oncogenic          Unknown 
 #>                3                6                1
@@ -136,8 +166,8 @@ blca_sv <- blca_sv %>%
 
 
 annotated <- annotate_sv(blca_sv[1:10,])
-table(annotated$oncogenic)
+table(annotated$oncokb_oncogenic)
 #> 
-#> Likely Oncogenic        Oncogenic          Unknown 
-#>                6                3                1
+#> Likely Oncogenic          Unknown 
+#>                5                5
 ```

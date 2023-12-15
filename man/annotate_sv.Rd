@@ -4,10 +4,16 @@
 \alias{annotate_sv}
 \title{Annotate Structural Variants}
 \usage{
-annotate_sv(sv)
+annotate_sv(sv, return_simple = TRUE, return_query_params = FALSE)
 }
 \arguments{
-\item{sv}{a cna file in long format (similar to maf file)}
+\item{sv}{a sv file in long format (similar to maf file)}
+
+\item{return_simple}{Default is \code{TRUE} where only a set of the most common columns are returned from oncoKB annotator
+see \code{oncokbR::output_dictionary} for more information on what is returned. If \code{FALSE} all raw columns are returned from API.}
+
+\item{return_query_params}{If \code{TRUE}, the specific parameters used to query the API are returned in new columns.
+This can be useful for troubleshooting the annotator. Default is \code{FALSE}.}
 }
 \value{
 an annotated sv file

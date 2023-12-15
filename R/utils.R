@@ -118,5 +118,113 @@ recode_cna <- function(alteration_vector){
 
 
 
+#' Helper to select columns for output of annotation functions
+#'
+#' @param results input annotation result data frame
+#' @inheritParams annotate_mutations
+#'
+#' @return a string of select column names
+#' @export
+#'
+#' @examples
+.get_select_columns <- function(results,
+                        return_simple,
+                        return_query_params) {
+
+  all_colnames <- names(results)
+  query_cols <- all_colnames[stringr::str_detect(all_colnames, "oncokb_query_")]
+
+  simple_cols <- switch(return_simple + 1,
+                        all_colnames[!(all_colnames %in% query_cols)],
+                        oncokbR::output_dictionary$output_column_name[which(oncokbR::output_dictionary$include_in_simple_output == "yes")])
+
+  query_cols <- switch(return_query_params + 1,
+                       NULL,
+                       query_cols)
+
+  selected_columns <- unique(c(query_cols, simple_cols))
+
+  return(selected_columns)
+
+}
 
 
+
+#' Clean API Query Results
+#'
+#' @param query_result a data frame returned from API
+#' @param original_data the original user input data frame
+#' @inheritParams annotate_mutations
+#' @return a cleaned data frame
+#' @export
+#'
+.clean_query_results <- function(query_result,
+                                 original_data,
+                                 return_simple,
+                                 return_query_params) {
+
+  query_result <- query_result %>%
+    janitor::clean_names() %>%
+    dplyr:: rename_with(~paste0("oncokb_", .),
+                        .cols = -c("sample_id", "index"))
+
+  select_oputput_columns <- .get_select_columns(query_result,
+                                               return_simple = return_simple,
+                                               return_query_params = return_query_params)
+  query_result <- select(query_result,
+                           any_of(c("sample_id", "index",
+                                    select_oputput_columns)))
+
+  query_result <- query_result %>%
+    left_join(original_data, ., by = c("sample_id", "index"))
+
+  return(query_result)
+}
+
+
+#' Check a Data Frame for Required Columns
+#'
+#' @param data A data frame to check
+#' @param required_cols A character specifying names of columns to check
+#' @param data_name Optionally specify how the data set should be called in error message.
+#' Default is NULL and will call it a generic name.
+#' @return If data set doesn't have required columns it will return an error message.
+#' If it does have required columns, nothing will be returned
+#' @keywords internal
+
+.check_required_cols <- function(data, required_cols, data_name = NULL) {
+
+  data_name <- data_name %||% ""
+  column_names <- colnames(data)
+  which_missing <- required_cols[which(!(required_cols %in% column_names))]
+
+  if(length(which_missing) > 0) {
+    cli::cli_abort("The following required columns are missing in your {data_name} data: {.field {which_missing}}")
+  }
+
+}
+
+
+#' Warn if no tumor type annotation possible
+#'
+#' @param annotate_tumor_type TRUE if tumor type column is available in data
+#' @param data mutation, cna or sv data
+#'
+#' @return a warning and data set with edited columns
+#' @export
+#'
+#' @examples
+.tumor_type_warning <- function(annotate_tumor_type,
+                                data) {
+
+  if (!annotate_tumor_type) {
+
+    data <- data %>%
+      select(-contains("treatments"))
+
+    cli::cli_alert_info("No {.val tumor_type} found in data. No treatment-level annotations will be returned.")
+  }
+
+  return(data)
+
+}

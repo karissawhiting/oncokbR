@@ -9,6 +9,7 @@ utils::globalVariables(".")
 ## usethis namespace: start
 #' @importFrom cli cli_alert_success
 #' @importFrom cli cli_alert_warning
+#' @importFrom dplyr mutate
 #' @importFrom rlang abort
 ## usethis namespace: end
 NULL
