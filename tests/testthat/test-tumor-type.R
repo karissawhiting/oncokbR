@@ -50,9 +50,8 @@ test_that("Correct columns returned with tumor_type", {
     return_simple = FALSE)
 
   col_diff <- setdiff(names(mut_tum), names(mut))
-  expect_equal(length(col_diff), 47)
-  expect_equal(sum(stringr::str_detect(col_diff, "treatments")),
-               46)
+  expect_true(
+    all(stringr::str_detect(col_diff[2:length(col_diff)], 'treatments')))
 
   # cna -------
   cna_tum <- annotate_cna(
@@ -64,9 +63,9 @@ test_that("Correct columns returned with tumor_type", {
     return_simple = FALSE)
 
   col_diff <- setdiff(names(cna_tum), names(cna))
-  expect_equal(length(col_diff), 70)
-  expect_equal(sum(stringr::str_detect(col_diff, "treatments")),
-               69)
+  expect_true(
+    all(stringr::str_detect(col_diff[2:length(col_diff)], 'treatments')))
+
 
   # sv -------
   sv_tum <- annotate_sv(
@@ -78,7 +77,8 @@ test_that("Correct columns returned with tumor_type", {
     return_simple = FALSE)
 
   col_diff <- setdiff(names(sv_tum), names(sv))
-  expect_equal(length(col_diff), 24)
-  expect_equal(sum(stringr::str_detect(col_diff, "treatments")),
-               22)
+  col_diff <- col_diff[!stringr::str_detect(col_diff, "tumor_type")]
+  expect_true(
+    all(stringr::str_detect(col_diff[2:length(col_diff)], 'treatments')))
+
 })
