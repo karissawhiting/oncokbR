@@ -18,6 +18,7 @@ Imports:
     forcats,
     glue,
     httr,
+    httr2,
     janitor,
     jsonlite,
     magrittr,

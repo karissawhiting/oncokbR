@@ -166,17 +166,17 @@ recode_cna <- function(alteration_vector){
   query_result <- query_result %>%
     janitor::clean_names() %>%
     dplyr:: rename_with(~paste0("oncokb_", .),
-                        .cols = -c("sample_id", "index"))
+                        .cols = -c("sample_id", "event_index"))
 
   select_oputput_columns <- .get_select_columns(query_result,
                                                return_simple = return_simple,
                                                return_query_params = return_query_params)
   query_result <- select(query_result,
-                           any_of(c("sample_id", "index",
+                           any_of(c("sample_id", "event_index",
                                     select_oputput_columns)))
 
   query_result <- query_result %>%
-    left_join(original_data, ., by = c("sample_id", "index"))
+    left_join(original_data, ., by = c("sample_id", "event_index"))
 
   return(query_result)
 }
@@ -227,4 +227,30 @@ recode_cna <- function(alteration_vector){
 
   return(data)
 
+}
+
+
+
+
+
+# Create Protein Position Column -------------------------------------------
+.check_protein_start_end <- function(column_names, mutations) {
+
+  if(!("protein_pos_start" %in% column_names | "protein_pos_end" %in% column_names) &
+     "protein_position" %in% column_names) {
+
+    start_raw <- stringr::str_split_fixed(mutations$protein_position, "/", n=2)[,1]
+    mutations$protein_pos_start <- stringr::str_split_fixed(start_raw, "-", n=2)[,1]
+    mutations$protein_pos_end <- stringr::str_split_fixed(start_raw, "-", n=2)[,2]
+
+    mutations <- mutations %>%
+      mutate(protein_pos_end = case_when(
+        protein_pos_end == "" ~ protein_pos_start,
+        TRUE ~ protein_pos_end)) %>%
+      mutate(across(c("protein_pos_start", "protein_pos_end"),
+                    ~case_when(.x == "" ~ "NULL",
+                               TRUE ~ .x)))
+  }
+
+    return(mutations)
 }

@@ -10,6 +10,8 @@ utils::globalVariables(".")
 #' @importFrom cli cli_alert_success
 #' @importFrom cli cli_alert_warning
 #' @importFrom dplyr mutate
+#' @importFrom magrittr %>%
+#' @importFrom purrr %||%
 #' @importFrom rlang abort
 ## usethis namespace: end
 NULL
