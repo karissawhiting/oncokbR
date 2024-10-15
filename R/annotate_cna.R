@@ -1,5 +1,4 @@
 
-
 #' Annotate CNA
 #'
 #' @param cna a cna file in long format (similar to maf file)
@@ -15,72 +14,89 @@
 #' x <- annotate_cna(ex_cna)
 #'
 annotate_cna <- function(cna,
+                         annotate_tumor_type = NULL,
                          return_simple = TRUE,
-                         return_query_params = FALSE) {
+                         return_query_params = FALSE,
+                         reference_genome = "GRCh37",
+                         token = get_oncokb_token()) {
 
+  # Check Data --------------------------------------------------------------
+
+  # standardize column names
   cna <- rename_columns(cna)
+
+  # * Check for tumor type ---------------------
   annotate_tumor_type <- ("tumor_type" %in% names(cna))
 
-  # Check required columns & data types ---------------------------------------
-  required_cols_cna <- c("sample_id", "hugo_symbol", "alteration")
-
+  # * check required columns & data types ------
   .check_required_cols(data = cna,
-                       required_cols = required_cols_cna,
+                       required_cols = c("sample_id", "hugo_symbol", "alteration"),
                        data_name = "cna")
 
-  # Clean Data --------------------------------------------------------------
+  # * Check Parameters --------------------------
+
+  # `reference_genome`
+  if (!inherits(reference_genome, "character")) {
+    stop("`reference_genome` must be a character")
+  }
+
+  # Data Pre-processing -----------------------------------------------------
+
   cna <- cna %>%
     mutate(hugo_symbol = as.character(.data$hugo_symbol)) %>%
     mutate(alteration = tolower(stringr::str_trim(as.character(.data$alteration))))
 
+  # * Recode Alterations ------------------------
+
   levels_in_data <- names(table(cna$alteration))
 
-  # recode alterations
   cna <- cna %>%
     mutate(alteration = recode_cna(.data$alteration)) %>%
     mutate(alteration = toupper(.data$alteration))
 
 
+  # Annotate CNA ------------------------------------------------------------
 
-# Annotate CNA ------------------------------------------------------------
+  # * Check Token ------------
+  validate_oncokb_token(token = token)
 
-  cna <- mutate(cna, index = 1:nrow(cna))
+  # * Make request -------
 
-  all_cna_oncokb <- cna %>%
-    select(any_of(c("index", "sample_id", "hugo_symbol", "alteration", "tumor_type")))
+  # create event index
+  cna <- mutate(cna, event_index = 1:nrow(cna))
 
+  cna_select <- cna %>%
+    select(any_of(c("event_index",
+                    "sample_id",
+                    "hugo_symbol",
+                    "alteration",
+                    "tumor_type")))
 
-  make_url <- function(index, sample_id, hugo_symbol,
-                       alteration, tumor_type) {
-
-    url <- glue::glue("https://www.oncokb.org/api/v1/annotate/copyNumberAlterations?hugoSymbol=",
-                      "{hugo_symbol}&copyNameAlterationType={alteration}&referenceGenome=GRCh37")
-
-    if(annotate_tumor_type) {
-      url <- glue::glue(url, "&tumorType={tumor_type}")
-    }
-
-    token <- Sys.getenv('ONCOKB_TOKEN')
-    resp <- httr::GET(url,
-                      httr::add_headers(Authorization = paste("Bearer ",
-                                                              token,
-                                                              sep = "")))
-
-    parsed <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"),
-                                 flatten = TRUE,
-                                 simplifyVector = TRUE)
-
-    parsed <- unlist(parsed, recursive=TRUE) %>%
-      tibble::enframe() %>%
-      tidyr::pivot_wider(names_from = "name",
-                  values_fn = function(x) paste(x, collapse=","))
-
-    parsed$sample_id <- sample_id
-    parsed$index <- index
-    parsed
+  # If no tumor type, give NAs for call
+  if(!annotate_tumor_type) {
+    cna_select <- cna_select %>%
+      mutate(tumor_type = NA_character_)
   }
 
-  all_cna_oncokb <- purrr::pmap_df(all_cna_oncokb,  make_url)
+  # Todo: This could be cleaned up or even separated into own function
+  requests <- purrr::pmap(cna_select, ~oncokb_api_request(
+    event_index = ..1,
+    sample_id = ..2,
+    resource = "annotate/copyNumberAlterations",
+    hugoSymbol = ..3,
+    copyNameAlterationType = ..4,
+    tumor_type = ..5,
+    referenceGenome = reference_genome,
+    token = token
+  ))
+
+  list_of_responses <- purrr::map(requests, function(request) {
+    req_perform(request) |>
+      httr2::resp_body_string()})
+
+  all_cna_oncokb <- purrr::map_df(list_of_responses, parse_responses)
+  all_cna_oncokb <- bind_cols(cna_select[, c('event_index', 'sample_id')],
+                              all_cna_oncokb)
 
   # Clean Results  ----------------------------------------------------------
 
@@ -90,7 +106,7 @@ annotate_cna <- function(cna,
     return_query_params = return_query_params,
     original_data = cna)
 
-  # Tumor Type - Remove Cols if None  ------------------------------------------
+  # * Tumor Type - Remove Col if None  ------------------------------------------
 
   all_cna_oncokb <- .tumor_type_warning(
     annotate_tumor_type = annotate_tumor_type,

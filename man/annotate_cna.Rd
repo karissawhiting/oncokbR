@@ -4,7 +4,14 @@
 \alias{annotate_cna}
 \title{Annotate CNA}
 \usage{
-annotate_cna(cna, return_simple = TRUE, return_query_params = FALSE)
+annotate_cna(
+  cna,
+  annotate_tumor_type = NULL,
+  return_simple = TRUE,
+  return_query_params = FALSE,
+  reference_genome = "GRCh37",
+  token = get_oncokb_token()
+)
 }
 \arguments{
 \item{cna}{a cna file in long format (similar to maf file)}

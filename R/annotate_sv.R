@@ -12,23 +12,32 @@
 #' sv <- blca_sv[1:10,]
 #'
 #' x <- annotate_sv(sv = sv)
-#'
+#' x <- annotate_sv(sv = mutate(oncokbR::blca_sv[1:10, ], tumor_type = "BLCA"))
 annotate_sv <- function(sv,
+                        annotate_tumor_type = NULL,
                         return_simple = TRUE,
-                        return_query_params = FALSE) {
+                        return_query_params = FALSE,
+                        reference_genome = "GRCh37",
+                        token = get_oncokb_token()) {
 
+  # Check Data --------------------------------------------------------------
+
+  # standardize column names
   sv <- rename_columns(sv)
+
+  # check for tumor type
   annotate_tumor_type <- ("tumor_type" %in% names(sv))
 
-  # Check required columns & data types ---------------------------------------
-  required_cols_sv <- c("sample_id", "site_1_hugo_symbol", "site_2_hugo_symbol",
-                        "variant_class")
-
+  # check other columns
   .check_required_cols(data = sv,
-                       required_cols = required_cols_sv,
+                       required_cols = c("sample_id",
+                                         "site_1_hugo_symbol",
+                                         "site_2_hugo_symbol",
+                                         "variant_class"),
                        data_name = "sv")
 
-  # Clean Data --------------------------------------------------------------
+  # Data Pre-processing -----------------------------------------------------
+
   sv <- sv %>%
     mutate(site_1_hugo_symbol = as.character(.data$site_1_hugo_symbol)) %>%
     mutate(site_2_hugo_symbol = as.character(.data$site_2_hugo_symbol)) %>%
@@ -43,6 +52,7 @@ annotate_sv <- function(sv,
     mutate(structural_variant_type = toupper(.data$structural_variant_type))
 
 
+  # * Determine Functional Variants ---------------
   # Assume all structural variants are functional (this mirrors behavior in
   # https://github.com/oncokb/oncokb-annotator/blob/47e4a158ee843ead75445982532eb149db7f3106/AnnotatorCore.py#L1506)
 
@@ -55,7 +65,7 @@ annotate_sv <- function(sv,
                  TRUE ~ "true"))
     }
 
-  # Clean Variant Class -----------------------------------------------------
+  # * Clean Variant Class ---------------
 
   levels_in_data <- names(table(sv$structural_variant_type))
 
@@ -76,50 +86,65 @@ annotate_sv <- function(sv,
   }
 
 
-  # Annotate SV ----------------------------------------------------------------
 
-  sv <- mutate(sv, index = 1:nrow(sv))
+  # Annotate SV  ---------------------------------------------------------
 
-  all_sv_oncokb_raw <- sv %>%
-    select(any_of(c("index", "sample_id",
-                    "site_1_hugo_symbol", "site_2_hugo_symbol", "structural_variant_type", "is_functional", "tumor_type")))
+  # * Check Token ------------
+  validate_oncokb_token(token = token)
 
-  make_url <- function(index, sample_id, site_1_hugo_symbol, site_2_hugo_symbol,
-                       structural_variant_type, is_functional, tumor_type) {
+  # * Check Parameters ------------
 
-    url <- glue::glue("https://www.oncokb.org/api/v1/annotate/structuralVariants?hugoSymbolA=",
-                      "{site_1_hugo_symbol}&hugoSymbolB={site_2_hugo_symbol}&structuralVariantType=",
-                      "{structural_variant_type}&isFunctionalFusion={is_functional}&referenceGenome=GRCh37")
-
-
-    if(annotate_tumor_type) {
-      url <- glue::glue(url, "&tumorType={tumor_type}")
-    }
-
-
-    token <- Sys.getenv('ONCOKB_TOKEN')
-    resp <- httr::GET(url,
-                      httr::add_headers(Authorization = paste("Bearer ",
-                                                              token,
-                                                              sep = "")))
-
-    parsed <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"),
-                                 flatten = TRUE,
-                                 simplifyVector = TRUE)
-
-    parsed <-unlist(parsed, recursive=TRUE) %>%
-      tibble::enframe() %>%
-      tidyr::pivot_wider(names_from = "name",
-                         values_fn = function(x) paste(x, collapse=","))
-
-    parsed$sample_id <- sample_id
-    parsed$index <- index
-
-    parsed
+  # `reference_genome``
+  if (!inherits(reference_genome, "character")) {
+    stop("`reference_genome` must be a character")
   }
 
 
-  all_sv_oncokb <- purrr::pmap_df(all_sv_oncokb_raw,  make_url)
+  # * Make request -------
+
+  # create index
+  sv <- sv %>%
+    mutate(event_index = 1:nrow(.))
+
+  sv_select <- sv %>%
+    dplyr::select(any_of(c(
+      "event_index",
+      "sample_id",
+      "site_1_hugo_symbol",
+      "site_2_hugo_symbol",
+      "structural_variant_type",
+      "is_functional",
+      "tumor_type")))
+
+  # If no tumor type, give NAs for call
+  if(!annotate_tumor_type) {
+    sv_select <- sv_select %>%
+      mutate(tumor_type = NA_character_)
+  }
+
+  # Todo: This could be cleaned up or even separated into own function
+  requests <- pmap(sv_select, ~oncokb_api_request(
+    event_index = ..1,
+    sample_id = ..2,
+    resource = "annotate/structuralVariants",
+    hugoSymbolA = ..3,
+    hugoSymbolB = ..4,
+    structuralVariantType = ..5,
+    isFunctionalFusion = ..6,
+    tumorType = ..7,
+    token = token,
+    referenceGenome = reference_genome
+  ))
+
+
+  list_of_responses <- map(requests, function(request) {
+    req_perform(request) |>
+      httr2::resp_body_string()})
+
+  all_sv_oncokb <- map_df(list_of_responses, parse_responses)
+  all_sv_oncokb <- bind_cols(sv_select[, c('event_index', 'sample_id')],
+                             all_sv_oncokb)
+
 
   # Clean Results  ----------------------------------------------------------
 
@@ -127,7 +152,7 @@ annotate_sv <- function(sv,
     janitor::clean_names() %>%
     dplyr:: rename_with(~ stringr::str_remove(., "query_"), .cols = starts_with("query_")) %>%
     rename("query_hugo_symbol" = "hugo_symbol") %>%
-    select("sample_id", everything())
+    select("event_index", "sample_id", everything())
 
   all_sv_oncokb <- .clean_query_results(
     query_result = all_sv_oncokb,
@@ -135,7 +160,7 @@ annotate_sv <- function(sv,
     return_query_params = return_query_params,
     original_data = sv)
 
-  # Tumor Type - Remove Cols if None  ------------------------------------------
+  # * Tumor Type - Remove col if None  -------
 
   all_sv_oncokb <- .tumor_type_warning(
     annotate_tumor_type = annotate_tumor_type,
@@ -145,4 +170,3 @@ annotate_sv <- function(sv,
 
 
 }
-

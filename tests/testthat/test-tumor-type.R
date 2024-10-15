@@ -3,27 +3,34 @@
 test_that("Message thrown when no tumor_type", {
 
   # mutations -----
-  expect_message(mut <-
-    annotate_mutations(oncokbR::blca_mutation[1:10, ]))
+  expect_message(mut2 <-
+    annotate_mutations(oncokbR::blca_mutation[1:10, ]),
+    regexp = "No treatment-level annotations will be returned")
 
   expect_no_message(mut_tum <-
     annotate_mutations(
-      mutate(oncokbR::blca_mutation[1:10, ], tumor_type = "BLCA")))
+      mutate(oncokbR::blca_mutation[1:10, ], tumor_type = "BLCA")),
+    message = "No treatment-level annotations will be returned")
 
   # cna -------
-  expect_message(cna <- annotate_cna(oncokbR::blca_cna[1:10, ]))
+  expect_message(cna <- annotate_cna(oncokbR::blca_cna[1:10, ], return_simple = FALSE, return_query_params = TRUE),
+                 regexp = "No treatment-level annotations will be returned")
 
   expect_no_message(
     cna_tum <- annotate_cna(
-      mutate(oncokbR::blca_cna[1:10, ], tumor_type = "BLCA")))
+      mutate(oncokbR::blca_cna[1:10, ], tumor_type = "BLCA"), return_simple = FALSE, return_query_params = TRUE),
+    message = "No treatment-level annotations will be returned")
 
   # sv -------
   expect_message(
-    sv <- annotate_sv(oncokbR::blca_sv[1:10, ]))
+    sv <- annotate_sv(oncokbR::blca_sv[1:10, ]),
+    regexp = "No treatment-level annotations will be returned")
 
   expect_no_message(
     sv_tum <- annotate_sv(
-      mutate(oncokbR::blca_sv[1:10, ], tumor_type = "BLCA")))
+      mutate(oncokbR::blca_sv[1:10, ], tumor_type = "BLCA"
+             )),
+    message = "No treatment-level annotations will be returned")
 
   # Data different with tumor type ---
   expect_true(na.omit(mut$oncokb_highest_sensitive_level) !=

@@ -1,6 +1,6 @@
 Package: oncokbR
 Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9001
+Version: 0.1.0
 Authors@R: 
     c(person(given = "Karissa",
              family = "Whiting",
@@ -11,13 +11,14 @@ Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Imports: 
     cli,
     dplyr,
     forcats,
     glue,
     httr,
+    httr2,
     janitor,
     jsonlite,
     magrittr,
