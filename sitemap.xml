@@ -1,93 +1,34 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/404.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/authors.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/index.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/news/index.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/acc_cna.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/acc_mutation.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/annotate_cna.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/annotate_mutations.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/annotate_sv.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/blca_cna.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/blca_mutation.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/blca_sv.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/consequence_map.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/dot-annotate_mutations_by_hgvsg.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/dot-annotate_mutations_by_protein_change.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/dot-check_required_cols.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/dot-clean_query_results.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/dot-get_select_columns.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/dot-tumor_type_warning.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/mutations_hgvsg.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/names_df.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/null-default.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/oncokbR-package.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/output_dictionary.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/pipe.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/recode_cna.html</loc>
-  </url>
-  <url>
-    <loc>http://www.karissawhiting.com/oncokbR/reference/rename_columns.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>http://www.karissawhiting.com/oncokbR/404.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/CODE_OF_CONDUCT.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/LICENSE-text.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/LICENSE.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/authors.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/index.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/news/index.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/acc_cna.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/acc_mutation.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/annotate_cna.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/annotate_mutations.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/annotate_sv.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/blca_cna.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/blca_mutation.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/blca_sv.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/consequence_map.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/dot-annotate_mutations_by_hgvsg.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/dot-annotate_mutations_by_protein_change.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/dot-check_required_cols.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/dot-clean_query_results.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/dot-get_select_columns.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/dot-tumor_type_warning.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/index.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/mutations_hgvsg.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/names_df.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/null-default.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/oncokbR-package.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/output_dictionary.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/pipe.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/recode_cna.html</loc></url>
+<url><loc>http://www.karissawhiting.com/oncokbR/reference/rename_columns.html</loc></url>
 </urlset>
+
