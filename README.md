@@ -18,6 +18,11 @@ change as new versions are released. For more information on oncoKB, see
 [Chakravarty et
 al. 2017](https://ascopubs.org/doi/full/10.1200/PO.17.00011).
 
+{oncokbR} is a part of the
+[gnomeverse](https://mskcc-epi-bio.github.io/genomeverse/), a collection
+of R packages designed to work together seamlessly to create
+reproducible clinico-genomic analysis pipelines.
+
 ## Installation
 
 You can install the development version of oncokbR with:
@@ -43,8 +48,8 @@ all package functions.
 
 ``` r
 usethis::edit_r_environ()
-#> • Edit '/Users/kwhiting/.Renviron'
-#> • Restart R for changes to take effect
+#> ☐ Edit '/Users/kwhiting/.Renviron'.
+#> ☐ Restart R for changes to take effect.
 ```
 
 Paste the token you were given (using the format below) in the .Renviron
@@ -62,6 +67,7 @@ ONCOKB_TOKEN = 'YOUR_TOKEN'
 ``` r
 library(oncokbR)
 library(dplyr)
+#> Warning: package 'dplyr' was built under R version 4.2.3
 #> 
 #> Attaching package: 'dplyr'
 #> The following objects are masked from 'package:stats':
@@ -81,6 +87,8 @@ blca_mutation <- oncokbR::blca_mutation %>%
   mutate(tumor_type = "BLCA")
 
 annotated_tt <- annotate_mutations(mutations = blca_mutation[1:50,])
+#> ✔ Token valid for "whitingk@mskcc.org"
+#> ℹ Token expiration date: 2025-04-20
 
 annotated_tt$oncokb_oncogenic 
 #>  [1] "Unknown"          "Unknown"          "Unknown"          "Unknown"         
@@ -103,8 +111,8 @@ annotated_tt %>%
   select(oncokb_highest_sensitive_level) %>% 
   table()
 #> oncokb_highest_sensitive_level
-#> LEVEL_3B 
-#>        1
+#> LEVEL_1 
+#>       1
 ```
 
 You can also annotated with no tumor type data for oncogenicity. Here
@@ -116,6 +124,8 @@ that has a higher level.
 blca_mutation <- oncokbR::blca_mutation
 
 annotated_no_tt <- annotate_mutations(mutations = blca_mutation[1:50,])
+#> ✔ Token valid for "whitingk@mskcc.org"
+#> ℹ Token expiration date: 2025-04-20
 #> ℹ No "tumor_type" found in data. No treatment-level annotations will be returned.
 
 annotated_no_tt$oncokb_oncogenic
@@ -151,6 +161,8 @@ blca_cna <- blca_cna %>%
 
 
 annotated <- annotate_cna(blca_cna[1:10,])
+#> ✔ Token valid for "whitingk@mskcc.org"
+#> ℹ Token expiration date: 2025-04-20
 table(annotated$oncokb_oncogenic)
 #> 
 #> Likely Oncogenic        Oncogenic          Unknown 
@@ -166,8 +178,24 @@ blca_sv <- blca_sv %>%
 
 
 annotated <- annotate_sv(blca_sv[1:10,])
+#> ✔ Token valid for "whitingk@mskcc.org"
+#> ℹ Token expiration date: 2025-04-20
 table(annotated$oncokb_oncogenic)
 #> 
 #> Likely Oncogenic          Unknown 
 #>                5                5
 ```
+
+## Contributing
+
+Please note that {oncokbR} is released with a [Contributor Code of
+Conduct](https://www.karissawhiting.com/oncokbR/CODE_OF_CONDUCT.html).
+By contributing to this project, you agree to abide by its terms.
+
+Thank you to contributors!
+
+[@david-nemirovsky](https://github.com/david-nemirovsky),
+[@patrick120161](https://github.com/patrick120161),
+[@edrill](https://github.com/edrill),
+[@jalavery](https://github.com/jalavery),
+[@stl2137](https://github.com/stl2137)

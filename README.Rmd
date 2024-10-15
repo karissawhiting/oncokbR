@@ -24,6 +24,8 @@ knitr::opts_chunk$set(
 
 This package is compatible with oncoKB data v3.16, but is subject to change as new versions are released. For more information on oncoKB, see [Chakravarty et al. 2017](https://ascopubs.org/doi/full/10.1200/PO.17.00011). 
 
+{oncokbR} is a part of the [gnomeverse](https://mskcc-epi-bio.github.io/genomeverse/), a collection of R packages designed to work together seamlessly to create reproducible clinico-genomic analysis pipelines.
+
 ## Installation
 
 You can install the development version of oncokbR with:
@@ -117,3 +119,19 @@ blca_sv <- blca_sv %>%
 annotated <- annotate_sv(blca_sv[1:10,])
 table(annotated$oncokb_oncogenic)
 ```
+
+
+## Contributing
+
+Please note that {oncokbR} is released with a [Contributor
+Code of
+Conduct](https://www.karissawhiting.com/oncokbR/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms. 
+
+Thank you to contributors!
+
+[&#x0040;david-nemirovsky](https://github.com/david-nemirovsky),
+[&#x0040;patrick120161](https://github.com/patrick120161),
+[&#x0040;edrill](https://github.com/edrill),
+[&#x0040;jalavery](https://github.com/jalavery), 
+[&#x0040;stl2137](https://github.com/stl2137)
+
