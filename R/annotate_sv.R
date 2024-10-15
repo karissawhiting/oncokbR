@@ -12,7 +12,7 @@
 #' sv <- blca_sv[1:10,]
 #'
 #' x <- annotate_sv(sv = sv)
-#'
+#' x <- annotate_sv(sv = mutate(oncokbR::blca_sv[1:10, ], tumor_type = "BLCA"))
 annotate_sv <- function(sv,
                         annotate_tumor_type = NULL,
                         return_simple = TRUE,
@@ -113,7 +113,8 @@ annotate_sv <- function(sv,
       "site_1_hugo_symbol",
       "site_2_hugo_symbol",
       "structural_variant_type",
-      "is_functional")))
+      "is_functional",
+      "tumor_type")))
 
   # If no tumor type, give NAs for call
   if(!annotate_tumor_type) {

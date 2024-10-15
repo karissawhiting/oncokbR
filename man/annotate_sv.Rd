@@ -4,7 +4,14 @@
 \alias{annotate_sv}
 \title{Annotate Structural Variants}
 \usage{
-annotate_sv(sv, return_simple = TRUE, return_query_params = FALSE)
+annotate_sv(
+  sv,
+  annotate_tumor_type = NULL,
+  return_simple = TRUE,
+  return_query_params = FALSE,
+  reference_genome = "GRCh37",
+  token = get_oncokb_token()
+)
 }
 \arguments{
 \item{sv}{a sv file in long format (similar to maf file)}

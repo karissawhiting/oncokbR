@@ -1,5 +1,4 @@
 
-
 #' Annotate CNA
 #'
 #' @param cna a cna file in long format (similar to maf file)
@@ -26,13 +25,20 @@ annotate_cna <- function(cna,
   # standardize column names
   cna <- rename_columns(cna)
 
-  # check for tumor type
+  # * Check for tumor type ---------------------
   annotate_tumor_type <- ("tumor_type" %in% names(cna))
 
-  # Check required columns & data types ---------------------------------------
+  # * check required columns & data types ------
   .check_required_cols(data = cna,
                        required_cols = c("sample_id", "hugo_symbol", "alteration"),
                        data_name = "cna")
+
+  # * Check Parameters --------------------------
+
+  # `reference_genome`
+  if (!inherits(reference_genome, "character")) {
+    stop("`reference_genome` must be a character")
+  }
 
   # Data Pre-processing -----------------------------------------------------
 
@@ -40,7 +46,7 @@ annotate_cna <- function(cna,
     mutate(hugo_symbol = as.character(.data$hugo_symbol)) %>%
     mutate(alteration = tolower(stringr::str_trim(as.character(.data$alteration))))
 
-  # * Recode Alterations ------
+  # * Recode Alterations ------------------------
 
   levels_in_data <- names(table(cna$alteration))
 
@@ -53,13 +59,6 @@ annotate_cna <- function(cna,
 
   # * Check Token ------------
   validate_oncokb_token(token = token)
-
-  # * Check Parameters ------------
-
-  # `reference_genome`
-  if (!inherits(referenceGenome, "character")) {
-    stop("`referenceGenome` must be a character")
-  }
 
   # * Make request -------
 
@@ -80,7 +79,7 @@ annotate_cna <- function(cna,
   }
 
   # Todo: This could be cleaned up or even separated into own function
-  requests <- pmap(cna_select, ~oncokb_api_request(
+  requests <- purrr::pmap(cna_select, ~oncokb_api_request(
     event_index = ..1,
     sample_id = ..2,
     resource = "annotate/copyNumberAlterations",
@@ -91,11 +90,11 @@ annotate_cna <- function(cna,
     token = token
   ))
 
-  list_of_responses <- map(requests, function(request) {
+  list_of_responses <- purrr::map(requests, function(request) {
     req_perform(request) |>
       httr2::resp_body_string()})
 
-  all_cna_oncokb <- map_df(list_of_responses, parse_responses)
+  all_cna_oncokb <- purrr::map_df(list_of_responses, parse_responses)
   all_cna_oncokb <- bind_cols(cna_select[, c('event_index', 'sample_id')],
                               all_cna_oncokb)
 

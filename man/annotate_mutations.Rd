@@ -7,8 +7,11 @@
 annotate_mutations(
   mutations,
   annotate_by = c("protein_change", "hgvsg"),
+  annotate_tumor_type = NULL,
   return_simple = TRUE,
-  return_query_params = FALSE
+  return_query_params = FALSE,
+  reference_genome = "GRCh37",
+  token = get_oncokb_token()
 )
 }
 \arguments{
@@ -39,6 +42,7 @@ x <- annotate_mutations(mutations)
 # Annotate with tumor type -----
 
 # Annotate by HGVSg
-z <- annotate_mutations(oncokbR::mutations_hgvsg, annotate_by =  "hgvsg")
+z <- annotate_mutations(mutations = oncokbR::mutations_hgvsg, annotate_by =  "hgvsg")
+z <- annotate_mutations(mutations = oncokbR::blca_mutation, annotate_by =  "protein_change")
 
 }

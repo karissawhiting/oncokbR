@@ -1,4 +1,4 @@
-# oncokbR (development version)
+# oncokbR 0.1.0
 
 # oncokbR 0.0.0.9000
 

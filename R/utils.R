@@ -254,3 +254,23 @@ recode_cna <- function(alteration_vector){
 
     return(mutations)
 }
+
+
+
+# Takes a vector as input
+.check_consequence <- function(variant_classification) {
+
+  # * Check Variant Consequence  -----------
+
+  variant_options <- tolower(unique(stats::na.omit(unlist(oncokbR::consequence_map))))
+  variant_in_data <- tolower(unique(variant_classification))
+
+#  not_allowed <- stats::na.omit(variant_in_data[!(variant_in_data %in% variant_options)])
+  not_allowed <- stats::na.omit(setdiff(variant_in_data, variant_options))
+
+  # Maybe turn into warning
+  if(length(not_allowed) > 0) {
+    cli::cli_abort("The following variant classification levels are not recognized: {.code {not_allowed}}.
+                     Please remove or recode these to continue (see {.code oncokbR::consequence_map} for allowed values)")
+  }
+}
